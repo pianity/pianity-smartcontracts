@@ -1,0 +1,12 @@
+build/
+node_modules/
+
+.smartweave-cache/
+smartweave-cache/
+smartweave-cache.sqlite
+
+assets
+
+yarn-error.log
+
+.env*

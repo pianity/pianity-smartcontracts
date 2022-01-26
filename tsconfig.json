@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "es2021",
+        "lib": ["es2021"],
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "strictNullChecks": false,
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["src/*"],
+            "#/*": ["scrips/*"],
+            "?/*": ["test/*"]
+        }
+    }
+}

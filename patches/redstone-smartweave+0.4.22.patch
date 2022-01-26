@@ -1,0 +1,30 @@
+diff --git a/node_modules/redstone-smartweave/lib/cjs/cache/impl/KnexStateCache.js b/node_modules/redstone-smartweave/lib/cjs/cache/impl/KnexStateCache.js
+index 28ecdff..ec9550b 100644
+--- a/node_modules/redstone-smartweave/lib/cjs/cache/impl/KnexStateCache.js
++++ b/node_modules/redstone-smartweave/lib/cjs/cache/impl/KnexStateCache.js
+@@ -86,7 +86,7 @@ class KnexStateCache extends cache_1.MemBlockHeightSwCache {
+             this.isDirty = false;
+         }
+         catch (e) {
+-            this.kLogger.error('Error while flushing cache', e);
++            this.kLogger.error('Error while flushing cache [error object omitted]');
+         }
+         finally {
+             this.isFlushing = false;
+diff --git a/node_modules/redstone-smartweave/lib/cjs/utils/utils.js b/node_modules/redstone-smartweave/lib/cjs/utils/utils.js
+index 2308989..4922255 100644
+--- a/node_modules/redstone-smartweave/lib/cjs/utils/utils.js
++++ b/node_modules/redstone-smartweave/lib/cjs/utils/utils.js
+@@ -12,9 +12,9 @@ const sleep = (ms) => {
+ };
+ exports.sleep = sleep;
+ const deepCopy = (input) => {
+-    if (!!redstone_isomorphic_1.v8) {
+-        return redstone_isomorphic_1.v8.deserialize(redstone_isomorphic_1.v8.serialize(input));
+-    }
++    // if (!!redstone_isomorphic_1.v8) {
++    //     return redstone_isomorphic_1.v8.deserialize(redstone_isomorphic_1.v8.serialize(input));
++    // }
+     return (0, cloneDeep_1.default)(input);
+     // note: parse/stringify combination is slooow: https://jsben.ch/bWfk9
+     //return JSON.parse(JSON.stringify(input, mapReplacer), mapReviver);
