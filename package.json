@@ -9,8 +9,7 @@
         "node": ">=16.13.0"
     },
     "scripts": {
-        "start": "ts-node --transpile-only src/index.ts",
-        "build": "ts-node --transpile-only scripts/build.ts",
+        "build": "ts-node scripts/build.ts",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
         "test": "ava",

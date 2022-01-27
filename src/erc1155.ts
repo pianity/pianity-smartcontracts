@@ -1,10 +1,5 @@
-// import { SmartWeave, ContractAssert, ContractError } from "@/utils";
-
+import { ContractAssert, ContractError, Smartweave } from "@/externals";
 import { settings } from "@/handlers/settings";
-
-declare const ContractError;
-declare const SmartWeave;
-declare const ContractAssert;
 
 const PST = "PTY";
 const UNITY = 1e6;
@@ -465,7 +460,7 @@ export async function handle(
             "Invalid auction contract",
         );
 
-        const foreignState = await SmartWeave.contracts.readContractState(target);
+        const foreignState = await Smartweave.contracts.readContractState(target);
         ContractAssert(foreignState.foreignCalls, "Contract is missing support for foreign calls");
 
         const invocation = foreignState.foreignCalls[invocationId];
@@ -486,7 +481,7 @@ export async function handle(
     }
 
     if (input.function === "mint") {
-        const tokenId = SmartWeave.transaction.id;
+        const tokenId = Smartweave.transaction.id;
         const { royalties } = input;
         const { qty } = input;
         const { no } = input;
@@ -505,7 +500,7 @@ export async function handle(
         return { state };
     }
 
-    throw new (ContractError as any)(
+    throw new ContractError(
         `No function supplied or function not recognised: "${input.function}".`,
     );
 }

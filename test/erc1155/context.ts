@@ -1,6 +1,4 @@
 /* eslint-disable prefer-arrow-callback, func-names */
-import "module-alias/register";
-
 import anyTest, { TestFn } from "ava";
 
 import Arweave from "arweave";
@@ -43,7 +41,7 @@ test.before(async (t) => {
             contractOwners: [apiAddress],
             contractSuperOwners: [superOwnerAddress],
             communityChest: communityChestAddress,
-            foreignContracts: [],
+            foreignContracts: Array<any>(),
             allowFreeTransfer: false,
             primaryRate: 0.15,
             secondaryRate: 0.1,
@@ -60,7 +58,7 @@ test.before(async (t) => {
             },
         },
         operatorApprovals: {},
-        invocations: [],
+        invocations: Array<any>(),
     };
 
     const testEnv = new ContractsTestingEnv();

@@ -1,9 +1,3 @@
-import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";
-
-export declare function ContractAssert(cond: any, e: string): asserts cond;
-export declare function ContractError(e: string): void;
-export declare const SmartWeave: SmartWeaveGlobal;
-
 export function hasOwnProperty(object: any, property: string) {
     return Object.prototype.hasOwnProperty.call(object, property);
 }

@@ -5,7 +5,7 @@
         "module": "commonjs",
         "strict": true,
         "esModuleInterop": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "noImplicitReturns": true,
         "strictNullChecks": false,
         "resolveJsonModule": true,
@@ -18,5 +18,8 @@
             "#/*": ["scrips/*"],
             "?/*": ["test/*"]
         }
+    },
+    "ts-node": {
+        "transpileOnly": true
     }
 }

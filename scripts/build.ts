@@ -24,6 +24,7 @@ async function unIifeBundle(path: string) {
         bundle: true,
         minify: false,
         format: "iife",
+        external: ["@/externals"],
     });
     await unIifeBundle("build/erc1155.js");
 

@@ -20,7 +20,7 @@
         "sourceType": "module",
         "project": "tsconfig.json"
     },
-    "ignorePatterns": ["src/graphql/pianity.ts", "src/graphql/arweave.ts"],
+    "ignorePatterns": [],
     "rules": {
         "no-constant-condition": "warn",
         "no-else-return": "off",

@@ -1,9 +1,6 @@
+import { ContractAssert } from "@/externals";
 import { Action, State, Settings } from "@/erc1155";
 import { hasOwnProperty } from "@/utils";
-
-declare const ContractError;
-declare const SmartWeave;
-declare const ContractAssert;
 
 function sanitizeSettings(settings: Settings, untrustedSettings: Settings) {
     const untrustedAny = untrustedSettings as any;
