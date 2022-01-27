@@ -1,4 +1,4 @@
-import { ContractAssert, ContractError, Smartweave } from "@/externals";
+import { Smartweave, ContractAssert, ContractError } from "@/externals";
 import { settings } from "@/handlers/settings";
 
 const PST = "PTY";

@@ -1,4 +1,5 @@
-import { build } from "esbuild";
+import { build, Plugin } from "esbuild";
+import { readFile } from "node:fs/promises";
 import { replaceInFile } from "replace-in-file";
 
 async function unIifeBundle(path: string) {
@@ -17,6 +18,17 @@ async function unIifeBundle(path: string) {
     }
 }
 
+const removeExternalsImports: Plugin = {
+    name: "remove-externals-imports",
+    setup({ onLoad }) {
+        onLoad({ filter: /\.ts$/ }, async (args) => {
+            let code = (await readFile(args.path)).toString();
+            code = code.replace(/^import .*".\/externals"/gm, "/* erased */");
+            return { contents: code, loader: "default" };
+        });
+    },
+};
+
 (async () => {
     await build({
         entryPoints: ["src/erc1155.ts"],
@@ -24,16 +36,7 @@ async function unIifeBundle(path: string) {
         bundle: true,
         minify: false,
         format: "iife",
-        external: ["@/externals"],
+        plugins: [removeExternalsImports],
     });
     await unIifeBundle("build/erc1155.js");
-
-    await build({
-        entryPoints: ["src/index.ts"],
-        outfile: "build/test.js",
-        bundle: true,
-        minify: false,
-        format: "iife",
-        platform: "node",
-    });
 })();
