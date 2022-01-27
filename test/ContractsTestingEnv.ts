@@ -1,6 +1,5 @@
 // Code cloned and edited as needed from https://github.com/redstone-finance/redstone-smartweave-contracts/
 
-import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 
 import Arweave from "arweave";
@@ -19,30 +18,32 @@ export type Block = {
     timestamp: number;
 };
 
-export type Contract = {
+export type Contract<STATE> = {
     src: string;
     txId: string;
-    initialState: any;
+    initialState: STATE;
 };
 
-export default class ContractsTestingEnv {
+// TODO: Change this class in order for it to manage only one contract
+export default class ContractsTestingEnv<STATE> {
     private readonly contracts: {
         [contractId: string]: {
             env: ContractExecutionEnv;
-            states: any[];
+            states: STATE[];
         };
     };
 
     constructor() {
         this.contracts = {};
-        this.pushState = this.pushState.bind(this);
-        this.currentState = this.currentState.bind(this);
-        this.clearContracts = this.clearContracts.bind(this);
-        this.readState = this.readState.bind(this);
-        this.history = this.history.bind(this);
+        // TODO: Is this useful?
+        // this.pushState = this.pushState.bind(this);
+        // this.currentState = this.currentState.bind(this);
+        // this.clearContracts = this.clearContracts.bind(this);
+        // this.readState = this.readState.bind(this);
+        // this.history = this.history.bind(this);
     }
 
-    deploy(contract: Contract): string {
+    deploy(contract: Contract<STATE>): string {
         return this.deployContract(contract.src, contract.initialState, contract.txId);
     }
 
@@ -51,7 +52,7 @@ export default class ContractsTestingEnv {
      */
     deployContract(
         srcPath: string, // from the project's root.
-        initialState: any = {},
+        initialState: STATE,
         contractId = `TEST-${srcPath}`,
     ): string {
         if (srcPath === undefined || srcPath.length === 0) {
@@ -91,7 +92,7 @@ export default class ContractsTestingEnv {
         contractId: string,
         input: INPUT = null,
         block: Block = null,
-        forcedCurrentState: any = null,
+        forcedCurrentState: STATE = null,
     ): Promise<ContractInteractionResult> {
         // note: no need to copy state here, as it is copied by execute method:
         // https://github.com/ArweaveTeam/SmartWeave/blob/788a974e66494ef2ab8f876024e72bf363d4c4a4/src/contract-step.ts#L56
@@ -131,11 +132,11 @@ export default class ContractsTestingEnv {
         });
     }
 
-    pushState(contractId: string, state: any) {
+    pushState(contractId: string, state: STATE) {
         this.contracts[contractId].states.push(state);
     }
 
-    readState(contractId: string) {
+    readState(contractId: string): STATE {
         return this.currentState(contractId);
     }
 
@@ -147,10 +148,10 @@ export default class ContractsTestingEnv {
         return this.contracts[contractId].states;
     }
 
-    private currentState(contractId: string) {
+    private currentState(contractId: string): STATE {
         const statesLength = this.contracts[contractId].states.length;
         if (statesLength === 0) {
-            return {};
+            return null;
         } else {
             return this.contracts[contractId].states[statesLength - 1];
         }

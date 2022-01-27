@@ -35,6 +35,7 @@ export type Settings = {
 };
 
 export type State = {
+    name: string;
     nonce: number;
     settings: Settings;
 

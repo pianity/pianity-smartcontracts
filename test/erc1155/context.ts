@@ -5,19 +5,20 @@ import Arweave from "arweave";
 
 import ContractsTestingEnv from "?/ContractsTestingEnv";
 import { generateAddress } from "?/utils";
+import { State } from "@/erc1155";
 
 type Context = {
     arweave: Arweave;
     caller: string;
 
-    initialState: any;
+    initialState: State;
     contractSrcPath: string;
 
     apiAddress: string;
     superOwnerAddress: string;
     communityChestAddress: string;
 
-    testEnv: ContractsTestingEnv;
+    testEnv: ContractsTestingEnv<State>;
     contractId: string;
 };
 
@@ -34,14 +35,14 @@ test.before(async (t) => {
     const superOwnerAddress = await generateAddress();
     const communityChestAddress = await generateAddress();
 
-    const initialState = {
+    const initialState: State = {
         name: "Pianity",
         nonce: 1,
         settings: {
             contractOwners: [apiAddress],
             contractSuperOwners: [superOwnerAddress],
             communityChest: communityChestAddress,
-            foreignContracts: Array<any>(),
+            foreignContracts: [],
             allowFreeTransfer: false,
             primaryRate: 0.15,
             secondaryRate: 0.1,
@@ -58,10 +59,10 @@ test.before(async (t) => {
             },
         },
         operatorApprovals: {},
-        invocations: Array<any>(),
+        invocations: [],
     };
 
-    const testEnv = new ContractsTestingEnv();
+    const testEnv = new ContractsTestingEnv<State>();
     const contractId = testEnv.deployContract(contractSrcPath, initialState);
 
     t.context = {

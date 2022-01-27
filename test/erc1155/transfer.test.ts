@@ -7,10 +7,12 @@ test("transfer 1 pty", async (t) => {
 
         const randomUser = await generateAddress();
 
-        await testEnv.interact<any>(apiAddress, contractId, {
+        await testEnv.interact(apiAddress, contractId, {
             function: "transfer",
             target: randomUser,
             qty: 1,
         });
+
+        t.assert(testEnv.readState(contractId).tokens.PTY.balances[randomUser] === 1);
     });
 });
