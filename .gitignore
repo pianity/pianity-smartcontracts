@@ -10,3 +10,5 @@ assets
 yarn-error.log
 
 .env*
+
+testingFileBecauseTypescriptDoesntHaveAREPLPlsBringClojureScriptToTheWorld.ts
