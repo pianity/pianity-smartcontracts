@@ -3,7 +3,7 @@ import anyTest, { TestFn } from "ava";
 
 import Arweave from "arweave";
 
-import ContractTestingEnv from "?/ContractsTestingEnv";
+import ContractTestingEnv from "?/ContractTestingEnv";
 import { generateAddress } from "?/utils";
 import { Input, State } from "@/erc1155";
 

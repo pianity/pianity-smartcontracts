@@ -1,4 +1,4 @@
-import { ContractError } from "?/ContractsTestingEnv";
+import { ContractError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
 import { Input } from "@/erc1155";
 
