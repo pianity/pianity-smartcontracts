@@ -3,8 +3,6 @@ import test from "?/erc1155/context";
 import { Input } from "@/erc1155";
 
 test("setting a field with an invalid type should throw", async (t) => {
-    // TODO WARNING: if for another reason than the one expected anything throw in throwsAsync's callback
-    // then the test will erronously be successful.
     await t.throwsAsync(
         async () => {
             const { apiAddress, createContract } = t.context;
