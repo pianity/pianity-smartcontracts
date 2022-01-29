@@ -1,3 +1,5 @@
+import { State } from "@/erc1155";
+
 export function hasOwnProperty(object: any, property: string) {
     return Object.prototype.hasOwnProperty.call(object, property);
 }
@@ -22,4 +24,27 @@ export function wrapErrorAsync<T extends unknown[], U, V extends Error>(
 
 export function exhaustive(_: never): never {
     throw new Error("Check wasn't exhaustive");
+}
+
+// TODO: Investigate actually using this
+export type Handler<INPUT> = (state: State, caller: string, input: INPUT) => void;
+export type WrappedInput<INPUT> = Omit<INPUT, "function">;
+export type WrappedHandler<INPUT> = (
+    state: State,
+    caller: string,
+    input: WrappedInput<INPUT>,
+) => void;
+
+export function wrapHandler<INPUT>(
+    handler: Handler<INPUT>,
+): [Handler<INPUT>, WrappedHandler<INPUT>] {
+    const wrappedHandler: WrappedHandler<INPUT> = function wrappedHandler(
+        state: State,
+        caller: string,
+        input: WrappedInput<INPUT>,
+    ) {
+        handler(state, caller, { ...input, function: handler.name } as unknown as INPUT);
+    };
+
+    return [handler, wrappedHandler];
 }

@@ -24,38 +24,69 @@ export type Contract<STATE> = {
     initialState: STATE;
 };
 
-// TODO: Change this class in order for it to manage only one contract
-export default class ContractsTestingEnv<STATE> {
-    private readonly contracts: {
-        [contractId: string]: {
-            env: ContractExecutionEnv;
-            states: STATE[];
-        };
+enum ContractErrorKind {
+    Error = "Error",
+}
+
+export class ContractError extends Error {
+    kind: ContractErrorKind;
+
+    actualError: unknown;
+
+    constructor(actualError: unknown, kind = ContractErrorKind.Error, message = "") {
+        super(`${kind}: ${message}`);
+        this.name = "ContractError";
+        this.kind = kind;
+        this.actualError = actualError;
+        Error.captureStackTrace(this, ContractError);
+    }
+}
+
+// TODO: All the function that could throw should throw a specific custom error maybe
+export default class ContractTestingEnv<STATE, INPUT> {
+    private readonly contract: {
+        env: ContractExecutionEnv;
+        states: STATE[];
     };
 
-    constructor() {
-        this.contracts = {};
-        // TODO: Is this useful?
-        // this.pushState = this.pushState.bind(this);
-        // this.currentState = this.currentState.bind(this);
-        // this.clearContracts = this.clearContracts.bind(this);
-        // this.readState = this.readState.bind(this);
-        // this.history = this.history.bind(this);
+    readonly srcPath: string;
+
+    readonly initialState: STATE;
+
+    readonly contractId: string;
+
+    // TODO: Is this useful?
+    // constructor() {
+    //     // this.pushState = this.pushState.bind(this);
+    //     // this.currentState = this.currentState.bind(this);
+    //     // this.clearContracts = this.clearContracts.bind(this);
+    //     // this.readState = this.readState.bind(this);
+    //     // this.history = this.history.bind(this);
+    // }
+
+    constructor(
+        srcPath: string, // from the project's root.
+        initialState: STATE,
+        contractId = `TEST-${srcPath}`,
+    ) {
+        console.log("NEW CONTRACT", Math.random());
+
+        this.srcPath = srcPath;
+        this.contractId = contractId;
+        this.initialState = initialState;
+
+        this.contract = this.deployContract();
     }
 
-    deploy(contract: Contract<STATE>): string {
-        return this.deployContract(contract.src, contract.initialState, contract.txId);
-    }
+    // deploy(contract: Contract<STATE>): string {
+    //     return this.deployContract(contract.src, contract.initialState, contract.txId);
+    // }
 
     /**
      * deploys new contract and returns its contractId
      */
-    deployContract(
-        srcPath: string, // from the project's root.
-        initialState: STATE,
-        contractId = `TEST-${srcPath}`,
-    ): string {
-        if (srcPath === undefined || srcPath.length === 0) {
+    private deployContract() {
+        if (this.srcPath === undefined || this.srcPath.length === 0) {
             throw new Error("srcPath is required.");
         }
 
@@ -67,94 +98,85 @@ export default class ContractsTestingEnv<STATE> {
         //     write: false,
         // });
 
-        const src = readFileSync(srcPath).toString();
+        const src = readFileSync(this.srcPath).toString();
         const env: ContractExecutionEnv = createContractExecutionEnvironment(
             Arweave.init({}),
             src,
-            contractId,
+            this.contractId,
             "",
         );
 
-        env.swGlobal.contracts.readContractState = (contractId) => {
-            return JSON.parse(JSON.stringify(this.currentState(contractId)));
+        env.swGlobal.contracts.readContractState = () => {
+            return JSON.parse(JSON.stringify(this.currentState()));
         };
 
-        this.contracts[contractId] = {
+        return {
             env,
-            states: [initialState],
+            states: [this.initialState],
         };
-
-        return contractId;
     }
 
-    async interact<INPUT>(
+    async interact(
         caller: string,
-        contractId: string,
-        input: INPUT = null,
-        block: Block = null,
-        forcedCurrentState: STATE = null,
+        input: INPUT,
+        block?: Block,
+        forcedCurrentState?: STATE,
     ): Promise<ContractInteractionResult> {
-        // note: no need to copy state here, as it is copied by execute method:
-        // https://github.com/ArweaveTeam/SmartWeave/blob/788a974e66494ef2ab8f876024e72bf363d4c4a4/src/contract-step.ts#L56
-        const currentState = forcedCurrentState || this.currentState(contractId);
+        try {
+            // note: no need to copy state here, as it is copied by execute method:
+            // https://github.com/ArweaveTeam/SmartWeave/blob/788a974e66494ef2ab8f876024e72bf363d4c4a4/src/contract-step.ts#L56
+            const currentState = forcedCurrentState || this.currentState();
 
-        const prevActiveTx = this.contracts[contractId].env.swGlobal._activeTx;
-        this.contracts[contractId].env.swGlobal._activeTx = ContractsTestingEnv.mockActiveTx(
-            block || { height: 1000, timestamp: 5555 },
-        );
+            const prevActiveTx = this.contract.env.swGlobal._activeTx;
+            this.contract.env.swGlobal._activeTx = ContractTestingEnv.mockActiveTx(
+                block || { height: 1000, timestamp: 5555 },
+            );
 
-        const res: ContractInteractionResult = await execute(
-            this.contracts[contractId].env.handler,
-            {
-                input,
-                caller,
-            },
-            currentState,
-        );
+            const res: ContractInteractionResult = await execute(
+                this.contract.env.handler,
+                {
+                    input,
+                    caller,
+                },
+                currentState,
+            );
 
-        if (res.type === "error" || res.type === "exception") {
-            throw Error(res.result);
+            if (res.type === "error" || res.type === "exception") {
+                throw Error(res.result);
+            }
+
+            this.pushState(this.contractId, res.state || currentState);
+            this.contract.env.swGlobal._activeTx = prevActiveTx;
+
+            return res;
+        } catch (e) {
+            throw new ContractError(e);
         }
-
-        this.pushState(contractId, res.state || currentState);
-        this.contracts[contractId].env.swGlobal._activeTx = prevActiveTx;
-
-        return res;
     }
 
-    clearState(contractId: string) {
-        this.contracts[contractId].states = [];
-    }
-
-    clearContracts() {
-        Object.keys(this.contracts).forEach((key: string) => {
-            delete this.contracts[key];
-        });
+    clearState() {
+        this.contract.states = [];
     }
 
     pushState(contractId: string, state: STATE) {
-        this.contracts[contractId].states.push(state);
+        this.contract.states.push(state);
     }
 
-    readState(contractId: string): STATE {
-        return this.currentState(contractId);
+    readState(): STATE {
+        return this.currentState();
     }
 
-    contractEnv(contractId: string) {
-        return this.contracts[contractId].env;
+    contractEnv() {
+        return this.contract.env;
     }
 
-    history(contractId: string) {
-        return this.contracts[contractId].states;
+    history() {
+        return this.contract.states;
     }
 
-    private currentState(contractId: string): STATE {
-        const statesLength = this.contracts[contractId].states.length;
-        if (statesLength === 0) {
-            return null;
-        } else {
-            return this.contracts[contractId].states[statesLength - 1];
-        }
+    private currentState(): STATE {
+        const statesLength = this.contract.states.length;
+        return this.contract.states[statesLength - 1];
     }
 
     private static mockActiveTx(mockBlock: Block): InteractionTx {

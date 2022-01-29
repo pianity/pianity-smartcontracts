@@ -1,3 +1,4 @@
+/* eslint-disable prefer-arrow-callback, no-use-before-define */
 import { Smartweave, ContractAssert, ContractError } from "@/externals";
 import { settings } from "@/handlers/settings";
 
@@ -44,29 +45,231 @@ export type State = {
     invocations: string[];
 };
 
+type TransferInput = {
+    function: "transfer";
+    from?: string;
+    target: string;
+    tokenId?: string;
+    qty?: number;
+    no?: number;
+    price?: number;
+};
+
+type TransferBatchInput = {
+    function: "transferBatch";
+    targets: string[];
+    froms: string[];
+    tokenIds: string[];
+    qtys?: number[];
+    prices?: number[];
+    nos?: number[];
+};
+
+// type SettingsInput = {};
+
+export type Input = {
+    function: string;
+    settings?: Settings;
+    from?: string;
+    froms?: string[];
+    target?: string;
+    targets?: string[];
+    royalties?: Record<string, number>;
+    owner?: string;
+    tokenId?: string;
+    tokenIds?: string[];
+    qty?: number;
+    qtys?: number[];
+    price?: number;
+    prices?: number[];
+    approved?: boolean;
+    no?: number;
+    nos?: number[];
+    invocationId?: string;
+};
+
 export type Action = {
-    input: {
-        function: string;
-        settings?: Settings;
-        from?: string;
-        froms?: string[];
-        target?: string;
-        targets?: string[];
-        royalties?: Record<string, number>;
-        owner?: string;
-        tokenId?: string;
-        tokenIds?: string[];
-        qty?: number;
-        qtys?: number[];
-        price?: number;
-        prices?: number[];
-        approved?: boolean;
-        no?: number;
-        nos?: number[];
-        invocationId?: string;
-    };
+    input: Input;
     caller: string;
 };
+
+export async function handle(
+    state: State,
+    action: Action,
+): Promise<{ state?: State; result?: unknown }> {
+    const { paused, contractOwners, contractSuperOwners } = state.settings;
+    const { input, caller } = action;
+
+    if (input.function === "name") {
+        return { result: { name: "Pianity" } };
+    }
+
+    if (input.function === "ticker") {
+        const tokenId = input.tokenId || PST;
+        const ticker = tickerOf(state, tokenId);
+
+        return { result: { ticker } };
+    }
+
+    if (input.function === "balance") {
+        const target = input.target || caller;
+        const tokenId = input.tokenId || PST;
+
+        const balance = balanceOf(state, tokenId, target);
+
+        return { result: { target, balance } };
+    }
+
+    if (input.function === "royalties") {
+        const { target } = input;
+        const { tokenId } = input;
+
+        ContractAssert(tokenId, ERR_NOTOKENID);
+        ContractAssert(target, ERR_NOTARGET);
+
+        const royalties = royaltiesOf(state, tokenId, target);
+
+        return { result: { royalties } };
+    }
+
+    if (input.function === "owner" || input.function === "owners") {
+        const { tokenId } = input;
+
+        ContractAssert(tokenId, ERR_NOTOKENID);
+        const owners = ownersOf(state, tokenId);
+        return { result: { owners } };
+    }
+
+    if (input.function === "isApprovedForAll") {
+        const { target } = input;
+        const { owner } = input;
+
+        ContractAssert(owner, "No owner specified");
+        ContractAssert(target, ERR_NOTARGET);
+        const approved = isApprovedForAll(state, owner, target);
+
+        return { result: { approved } };
+    }
+
+    ContractAssert(
+        !paused || contractSuperOwners.includes(caller),
+        "The contract must not be paused",
+    );
+
+    if (input.function === "setApprovalForAll") {
+        const { approved } = input;
+        const { target } = input;
+
+        ContractAssert(target, ERR_NOTARGET);
+        ContractAssert(typeof approved !== "undefined", "No approved parameter specified");
+        ContractAssert(target !== caller, "Target must be different from the caller");
+
+        if (!(caller in state.operatorApprovals)) {
+            state.operatorApprovals[caller] = {};
+        }
+
+        state.operatorApprovals[caller][target] = approved;
+
+        return { state };
+    }
+
+    if (input.function === "transfer") {
+        // TODO: instead of casting, make Input a union of all different input types
+        transfer(state, caller, input as TransferInput);
+
+        return { state };
+    }
+
+    if (input.function === "transferBatch") {
+        // TODO: instead of casting, make Input a union of all different input types
+        transferBatch(state, caller, input as TransferBatchInput);
+
+        return { state };
+    }
+
+    if (input.function === "transferRoyalties") {
+        const { target } = input;
+        const { tokenId } = input;
+        const { qty } = input;
+
+        ContractAssert(target, ERR_NOTARGET);
+        ContractAssert(qty, ERR_NOQTY);
+        ContractAssert(target !== caller, "Target must be different from the caller");
+        ContractAssert(tokenId, ERR_NOTOKENID);
+        ContractAssert(qty > 0, "Invalid value for qty. Must be positive");
+
+        const token = state.tokens[tokenId];
+        ContractAssert(token, "tokenId does not exist");
+        ContractAssert(token.royalties, "Royalties are not set for this token");
+
+        removeRoyaltiesFrom(token, caller, qty);
+        addRoyaltiesTo(token, target, qty);
+
+        checkRoyalties(token.royalties);
+
+        return { state };
+    }
+
+    if (input.function === "foreignInvoke") {
+        const { target } = input;
+        const { invocationId } = input;
+
+        ContractAssert(
+            contractOwners.includes(caller),
+            "Caller is not authorized to foreignInvoke",
+        );
+        ContractAssert(target, ERR_NOTARGET);
+        ContractAssert(typeof invocationId !== "undefined", "No invocationId specified");
+        ContractAssert(state.settings.foreignContracts, "No foreignContracts specified");
+        ContractAssert(
+            state.settings.foreignContracts.includes(target),
+            "Invalid auction contract",
+        );
+
+        const foreignState = await Smartweave.contracts.readContractState(target);
+        ContractAssert(foreignState.foreignCalls, "Contract is missing support for foreign calls");
+
+        const invocation = foreignState.foreignCalls[invocationId];
+        ContractAssert(
+            invocation,
+            `Incorrect invocationId: invocation not found (${invocationId})`,
+        );
+        ContractAssert(
+            !state.invocations.includes(target + invocationId),
+            `Invocation already exists (${invocation})`,
+        );
+        state.invocations.push(target + invocationId);
+
+        const foreignAction = action;
+        foreignAction.input = invocation;
+
+        return handle(state, foreignAction);
+    }
+
+    if (input.function === "mint") {
+        const tokenId = Smartweave.transaction.id;
+        const { royalties } = input;
+        const { qty } = input;
+        const { no } = input;
+
+        ContractAssert(contractOwners.includes(caller), "Caller is not authorized to mint");
+        ContractAssert(tokenId, ERR_NOTOKENID);
+        ContractAssert((qty && !no) || (!qty && no), "qty and no can't be set simultaneously");
+
+        mintToken(state, tokenId, royalties, qty, no);
+
+        return { state };
+    }
+
+    if (input.function === "settings") {
+        settings(state, action);
+        return { state };
+    }
+
+    throw new ContractError(
+        `No function supplied or function not recognised: "${input.function}".`,
+    );
+}
 
 function tickerOf(state: State, tokenId: string): string {
     const token = state.tokens[tokenId];
@@ -130,13 +333,9 @@ function mintToken(
 function transfer(
     state: State,
     caller: string,
-    from: string,
-    target: string,
-    tokenId: string,
-    qty?: number,
-    no?: number,
-    price?: number,
+    { target, qty, no, price, from = caller, tokenId = PST }: TransferInput,
 ) {
+    ContractAssert(target, ERR_NOTARGET);
     ContractAssert(from !== target, ERR_INVALID);
     const token = state.tokens[tokenId];
     ContractAssert(token, ERR_404TOKENID);
@@ -163,6 +362,39 @@ function transfer(
 
     removeTokenFrom(state, from, tokenId, qty || 1, no);
     addTokenTo(state, target, tokenId, qty || 1, no);
+}
+
+function transferBatch(
+    state: State,
+    caller: string,
+    { targets, froms, tokenIds, qtys, prices, nos }: TransferBatchInput,
+) {
+    ContractAssert(froms, ERR_NOFROM);
+    ContractAssert(tokenIds, ERR_NOTOKENID);
+    ContractAssert(targets, ERR_NOTARGET);
+    ContractAssert(tokenIds.length === froms.length, "tokenIds and froms length mismatch");
+    ContractAssert(tokenIds.length === targets.length, "tokenIds and targets length mismatch");
+    ContractAssert(qtys || nos, "At least one of qtys or nos must be set");
+    ContractAssert(!qtys || tokenIds.length === qtys.length, "tokenIds and qtys length mismatch");
+    ContractAssert(!nos || tokenIds.length === nos.length, "tokenIds and qtys length mismatch");
+
+    for (const i in tokenIds) {
+        const from = typeof froms[i] === "undefined" ? caller : froms[i];
+        const no = nos ? nos[i] : undefined;
+        const qty = qtys ? qtys[i] : undefined;
+        const price = prices ? prices[i] : undefined;
+
+        ContractAssert(targets[i], ERR_NOTARGET);
+        transfer(state, caller, {
+            function: "transfer",
+            from,
+            target: targets[i],
+            tokenId: tokenIds[i],
+            qty,
+            no,
+            price,
+        });
+    }
 }
 
 function addRoyaltiesTo(token: Token, target: string, qty: number) {
@@ -291,217 +523,4 @@ function isApprovedOrOwner(state: State, caller: string, target: string): boolea
     }
 
     return isApprovedForAll(state, caller, target);
-}
-
-export async function handle(
-    state: State,
-    action: Action,
-): Promise<{ state?: State; result?: unknown }> {
-    const { input } = action;
-    const { caller } = action;
-    const { paused } = state.settings;
-    const { contractOwners } = state.settings;
-    const { contractSuperOwners } = state.settings;
-
-    if (input.function === "name") {
-        return { result: { name: "Pianity" } };
-    }
-
-    if (input.function === "ticker") {
-        const tokenId = input.tokenId || PST;
-        const ticker = tickerOf(state, tokenId);
-
-        return { result: { ticker } };
-    }
-
-    if (input.function === "balance") {
-        const target = input.target || caller;
-        const tokenId = input.tokenId || PST;
-
-        const balance = balanceOf(state, tokenId, target);
-
-        return { result: { target, balance } };
-    }
-
-    if (input.function === "royalties") {
-        const { target } = input;
-        const { tokenId } = input;
-
-        ContractAssert(tokenId, ERR_NOTOKENID);
-        ContractAssert(target, ERR_NOTARGET);
-
-        const royalties = royaltiesOf(state, tokenId, target);
-
-        return { result: { royalties } };
-    }
-
-    if (input.function === "owner" || input.function === "owners") {
-        const { tokenId } = input;
-
-        ContractAssert(tokenId, ERR_NOTOKENID);
-        const owners = ownersOf(state, tokenId);
-        return { result: { owners } };
-    }
-
-    if (input.function === "isApprovedForAll") {
-        const { target } = input;
-        const { owner } = input;
-
-        ContractAssert(owner, "No owner specified");
-        ContractAssert(target, ERR_NOTARGET);
-        const approved = isApprovedForAll(state, owner, target);
-
-        return { result: { approved } };
-    }
-
-    ContractAssert(
-        !paused || contractSuperOwners.includes(caller),
-        "The contract must not be paused",
-    );
-
-    if (input.function === "setApprovalForAll") {
-        const { approved } = input;
-        const { target } = input;
-
-        ContractAssert(target, ERR_NOTARGET);
-        ContractAssert(typeof approved !== "undefined", "No approved parameter specified");
-        ContractAssert(target !== caller, "Target must be different from the caller");
-
-        if (!(caller in state.operatorApprovals)) {
-            state.operatorApprovals[caller] = {};
-        }
-
-        state.operatorApprovals[caller][target] = approved;
-
-        return { state };
-    }
-
-    if (input.function === "transfer") {
-        const { target } = input;
-        const from = typeof input.from === "undefined" ? caller : input.from;
-        const tokenId = input.tokenId || PST;
-        const { qty } = input;
-        const { price } = input;
-        const { no } = input;
-
-        ContractAssert(target, ERR_NOTARGET);
-        transfer(state, caller, from, target, tokenId, qty, no, price);
-
-        return { state };
-    }
-
-    if (input.function === "transferBatch") {
-        const { targets } = input;
-        const { froms } = input;
-        const { tokenIds } = input;
-        const { qtys } = input;
-        const { prices } = input;
-        const { nos } = input;
-
-        ContractAssert(froms, ERR_NOFROM);
-        ContractAssert(tokenIds, ERR_NOTOKENID);
-        ContractAssert(targets, ERR_NOTARGET);
-        ContractAssert(tokenIds.length === froms.length, "tokenIds and froms length mismatch");
-        ContractAssert(tokenIds.length === targets.length, "tokenIds and targets length mismatch");
-        ContractAssert(qtys || nos, "At least one of qtys or nos must be set");
-        ContractAssert(
-            !qtys || tokenIds.length === qtys.length,
-            "tokenIds and qtys length mismatch",
-        );
-        ContractAssert(!nos || tokenIds.length === nos.length, "tokenIds and qtys length mismatch");
-
-        for (const i in tokenIds) {
-            const from = typeof froms[i] === "undefined" ? caller : froms[i];
-            const no = nos ? nos[i] : undefined;
-            const qty = qtys ? qtys[i] : undefined;
-            const price = prices ? prices[i] : undefined;
-
-            ContractAssert(targets[i], ERR_NOTARGET);
-            transfer(state, caller, from, targets[i], tokenIds[i], qty, no, price);
-        }
-        return { state };
-    }
-
-    if (input.function === "transferRoyalties") {
-        const { target } = input;
-        const { tokenId } = input;
-        const { qty } = input;
-
-        ContractAssert(target, ERR_NOTARGET);
-        ContractAssert(qty, ERR_NOQTY);
-        ContractAssert(target !== caller, "Target must be different from the caller");
-        ContractAssert(tokenId, ERR_NOTOKENID);
-        ContractAssert(qty > 0, "Invalid value for qty. Must be positive");
-
-        const token = state.tokens[tokenId];
-        ContractAssert(token, "tokenId does not exist");
-        ContractAssert(token.royalties, "Royalties are not set for this token");
-
-        removeRoyaltiesFrom(token, caller, qty);
-        addRoyaltiesTo(token, target, qty);
-
-        checkRoyalties(token.royalties);
-
-        return { state };
-    }
-
-    if (input.function === "foreignInvoke") {
-        const { target } = input;
-        const { invocationId } = input;
-
-        ContractAssert(
-            contractOwners.includes(caller),
-            "Caller is not authorized to foreignInvoke",
-        );
-        ContractAssert(target, ERR_NOTARGET);
-        ContractAssert(typeof invocationId !== "undefined", "No invocationId specified");
-        ContractAssert(state.settings.foreignContracts, "No foreignContracts specified");
-        ContractAssert(
-            state.settings.foreignContracts.includes(target),
-            "Invalid auction contract",
-        );
-
-        const foreignState = await Smartweave.contracts.readContractState(target);
-        ContractAssert(foreignState.foreignCalls, "Contract is missing support for foreign calls");
-
-        const invocation = foreignState.foreignCalls[invocationId];
-        ContractAssert(
-            invocation,
-            `Incorrect invocationId: invocation not found (${invocationId})`,
-        );
-        ContractAssert(
-            !state.invocations.includes(target + invocationId),
-            `Invocation already exists (${invocation})`,
-        );
-        state.invocations.push(target + invocationId);
-
-        const foreignAction = action;
-        foreignAction.input = invocation;
-
-        return handle(state, foreignAction);
-    }
-
-    if (input.function === "mint") {
-        const tokenId = Smartweave.transaction.id;
-        const { royalties } = input;
-        const { qty } = input;
-        const { no } = input;
-
-        ContractAssert(contractOwners.includes(caller), "Caller is not authorized to mint");
-        ContractAssert(tokenId, ERR_NOTOKENID);
-        ContractAssert((qty && !no) || (!qty && no), "qty and no can't be set simultaneously");
-
-        mintToken(state, tokenId, royalties, qty, no);
-
-        return { state };
-    }
-
-    if (input.function === "settings") {
-        settings(state, action);
-        return { state };
-    }
-
-    throw new ContractError(
-        `No function supplied or function not recognised: "${input.function}".`,
-    );
 }

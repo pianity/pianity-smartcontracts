@@ -3,9 +3,9 @@ import anyTest, { TestFn } from "ava";
 
 import Arweave from "arweave";
 
-import ContractsTestingEnv from "?/ContractsTestingEnv";
+import ContractTestingEnv from "?/ContractsTestingEnv";
 import { generateAddress } from "?/utils";
-import { State } from "@/erc1155";
+import { Input, State } from "@/erc1155";
 
 type Context = {
     arweave: Arweave;
@@ -18,8 +18,7 @@ type Context = {
     superOwnerAddress: string;
     communityChestAddress: string;
 
-    testEnv: ContractsTestingEnv<State>;
-    contractId: string;
+    createContract: () => ContractTestingEnv<State, Input>;
 };
 
 const test = anyTest as TestFn<Context>;
@@ -62,8 +61,9 @@ test.before(async (t) => {
         invocations: [],
     };
 
-    const testEnv = new ContractsTestingEnv<State>();
-    const contractId = testEnv.deployContract(contractSrcPath, initialState);
+    const createContract = () => {
+        return new ContractTestingEnv<State, Input>(contractSrcPath, initialState);
+    };
 
     t.context = {
         arweave,
@@ -73,16 +73,11 @@ test.before(async (t) => {
         apiAddress,
         superOwnerAddress,
         communityChestAddress,
-        testEnv,
-        contractId,
+        createContract,
     };
 });
 
-test.beforeEach((t) => {
-    const { testEnv, contractSrcPath, initialState } = t.context;
-    t.context.contractId = testEnv.deployContract(contractSrcPath, initialState);
-});
-
-test.afterEach((t) => {
-    t.context.testEnv.clearContracts();
-});
+// test.beforeEach((t) => {
+//     const { srcPath, initialState } = t.context.contract;
+//     t.context.contract = new ContractTestingEnv<State, Input>(srcPath, initialState);
+// });

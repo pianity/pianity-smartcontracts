@@ -1,14 +1,41 @@
+import { ContractError } from "?/ContractsTestingEnv";
 import test from "?/erc1155/context";
+import { Input } from "@/erc1155";
 
-test("settings with invalid fields types should throws", async (t) => {
-    await t.throwsAsync(async () => {
-        const { testEnv, apiAddress, contractId } = t.context;
+test("setting a field with an invalid type should throw", async (t) => {
+    // TODO WARNING: if for another reason than the one expected anything throw in throwsAsync's callback
+    // then the test will erronously be successful.
+    await t.throwsAsync(
+        async () => {
+            const { apiAddress, createContract } = t.context;
+            const contract = createContract();
 
-        await testEnv.interact<any>(apiAddress, contractId, {
-            function: "settings",
-            settings: {
-                allowFreeTransfer: "wrong value",
-            },
-        });
-    });
+            await contract.interact(apiAddress, {
+                function: "settings",
+                settings: {
+                    allowFreeTransfer: "wrong value",
+                },
+            } as unknown as Input);
+        },
+        { instanceOf: ContractError },
+    );
+});
+
+test("setting a field with a valid type should change the field", async (t) => {
+    await t.throwsAsync(
+        async () => {
+            const { apiAddress, createContract } = t.context;
+            const contract = createContract();
+
+            await contract.interact(apiAddress, {
+                function: "settings",
+                settings: {
+                    allowFreeTransfer: true,
+                },
+            } as unknown as Input);
+
+            // TODO: check the updated field
+        },
+        { instanceOf: ContractError },
+    );
 });

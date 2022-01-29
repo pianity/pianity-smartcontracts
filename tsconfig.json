@@ -7,7 +7,7 @@
         "esModuleInterop": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
-        "strictNullChecks": false,
+        "strictNullChecks": true,
         "resolveJsonModule": true,
         "noEmit": true,
         "skipLibCheck": true,
