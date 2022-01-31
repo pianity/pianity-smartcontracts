@@ -1,25 +1,14 @@
 import { ContractAssert } from "@/externals";
-import { Action, State, Settings } from "@/erc1155";
+import { State, Settings, WriteResult } from "@/erc1155";
 import { hasOwnProperty } from "@/utils";
 
-function sanitizeSettings(settings: Settings, untrustedSettings: Settings) {
-    const untrustedAny = untrustedSettings as any;
+export type SettingsInput = {
+    function: "settings";
+    settings: Settings;
+};
 
-    for (const key of Object.keys(untrustedAny)) {
-        const untrustedType = typeof untrustedAny[key];
-        const stateType = typeof settings[key as keyof Settings];
-        const settingsHasKey = hasOwnProperty(settings, key);
-
-        ContractAssert(
-            !settingsHasKey || (settingsHasKey && untrustedType === stateType),
-            `Type of ${key} (${untrustedType}) doesn't match with ${stateType}`,
-        );
-    }
-}
-
-export function settings(state: State, action: Action) {
-    const { caller } = action;
-    const { settings: untrustedSettings } = action.input;
+export function settings(state: State, caller: string, input: SettingsInput): WriteResult {
+    const { settings: untrustedSettings } = input;
     const { contractSuperOwners, contractOwners } = state.settings;
 
     ContractAssert(untrustedSettings, "No settings specified");
@@ -48,4 +37,19 @@ export function settings(state: State, action: Action) {
     state.settings = { ...state.settings, ...untrustedSettings };
 
     return { state };
+}
+
+function sanitizeSettings(settings: Settings, untrustedSettings: Settings) {
+    const untrustedAny = untrustedSettings as any;
+
+    for (const key of Object.keys(untrustedAny)) {
+        const untrustedType = typeof untrustedAny[key];
+        const stateType = typeof settings[key as keyof Settings];
+        const settingsHasKey = hasOwnProperty(settings, key);
+
+        ContractAssert(
+            !settingsHasKey || (settingsHasKey && untrustedType === stateType),
+            `Type of ${key} (${untrustedType}) doesn't match with ${stateType}`,
+        );
+    }
 }

@@ -24,7 +24,7 @@
     "rules": {
         "no-constant-condition": "warn",
         "no-else-return": "off",
-        "@typescript-eslint/explicit-module-boundary-types": ["off"],
+        "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {
@@ -32,6 +32,7 @@
                 "argsIgnorePattern": "^_.*"
             }
         ],
+        "@typescript-eslint/prefer-namespace-keyword": "off",
 
         "import/no-unresolved": "off",
         "import/prefer-default-export": "off",
