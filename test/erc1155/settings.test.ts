@@ -1,6 +1,6 @@
 import { ContractError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
-import { Input } from "@/erc1155";
+import { Input } from "@/handlers";
 
 test("setting a field with an invalid type should throw", async (t) => {
     await t.throwsAsync(

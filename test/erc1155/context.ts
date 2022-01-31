@@ -1,11 +1,11 @@
-/* eslint-disable prefer-arrow-callback, func-names */
 import anyTest, { TestFn } from "ava";
 
 import Arweave from "arweave";
 
 import ContractTestingEnv from "?/ContractTestingEnv";
 import { generateAddress } from "?/utils";
-import { Input, State } from "@/erc1155";
+import { State } from "@/erc1155";
+import { Input } from "@/handlers";
 
 type Context = {
     arweave: Arweave;

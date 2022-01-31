@@ -13,13 +13,13 @@
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
         "test": "ava",
-        "postinstall": "patch-package"
+        "postinstall": "patch-package",
+        "prepare": "ts-patch install -s"
     },
     "dependencies": {
         "arweave": "^1.10.23",
         "ava": "^4.0.1",
         "esbuild": "^0.14.13",
-        "module-alias": "^2.2.2",
         "patch-package": "^6.4.7",
         "postinstall-postinstall": "^2.1.0",
         "redstone-smartweave": "^0.4.22",
@@ -38,12 +38,10 @@
         "eslint-config-airbnb-typescript": "^16.0.0",
         "eslint-config-prettier": "^8.1.0",
         "eslint-plugin-import": "^2.25.3",
-        "prettier": "^2.5.0"
-    },
-    "_moduleAliases": {
-        "@": "src/",
-        "#": "scripts/",
-        "?": "test/"
+        "prettier": "^2.5.0",
+        "ts-patch": "^2.0.1",
+        "tsconfig-paths": "^3.12.0",
+        "typescript-transform-paths": "^3.3.1"
     },
     "ava": {
         "files": [
@@ -54,7 +52,7 @@
         ],
         "require": [
             "ts-node/register",
-            "module-alias/register"
+            "tsconfig-paths/register"
         ]
     }
 }
