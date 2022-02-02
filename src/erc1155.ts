@@ -1,50 +1,12 @@
 import { ContractAssert, ContractError } from "@/externals";
 import { exhaustive } from "@/utils";
-
+import { Action, SmartcontractResult, State } from "@/contractTypes";
 import * as handlers from "@/handlers";
 
-export type Token = {
-    ticker: string;
-    owners?: string[]; // Ordered list of NFTs' owners
-    balances: Record<string, number>; // owner -> balance
-    royalties?: Record<string, number>;
-};
-
-export type Settings = {
-    primaryRate: number;
-    secondaryRate: number;
-    royaltyRate: number;
-
-    allowFreeTransfer: boolean;
-    paused: boolean;
-
-    communityChest: string;
-
-    contractOwners: string[];
-    contractSuperOwners: string[];
-    foreignContracts: string[];
-};
-
-export type State = {
-    name: string;
-    nonce: number;
-    settings: Settings;
-
-    tokens: Record<string, Token>; // token ID -> Token
-    operatorApprovals: Record<string, Record<string, boolean>>; // owner -> approved operators...
-    invocations: string[];
-};
-
-export type ReadonlyResult<T = unknown> = { result: T; state?: never };
-export type WriteResult = { state: State; result?: never };
-export type SmartcontractResult = ReadonlyResult | WriteResult;
-
-export type Action = {
-    input: handlers.Input;
-    caller: string;
-};
-
-export async function handle(state: State, action: Action): Promise<SmartcontractResult> {
+export async function handle(
+    state: State,
+    action: Action<handlers.Input>,
+): Promise<SmartcontractResult> {
     const { paused, contractSuperOwners } = state.settings;
     const { input, caller } = action;
 
@@ -102,7 +64,8 @@ export async function handle(state: State, action: Action): Promise<Smartcontrac
         default:
             exhaustive(input);
             throw new ContractError(
-                `No function supplied or function not recognised: "${(input as any)?.function}".`,
+                `No function supplied or function not recognised: "${input.function}".`,
             );
     }
 }
+

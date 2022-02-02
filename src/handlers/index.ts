@@ -16,7 +16,6 @@ export type Input =
     | TransferInput
     | TransferBatchInput
     | TransferRoyaltiesInput
-    | TransferRoyaltiesInput
     | MintInput
     | SettingsInput
     | ForeignInvokeInput;
@@ -48,5 +47,3 @@ export {
 export { mint, MintInput } from "@/handlers/mint";
 export { settings, SettingsInput } from "@/handlers/settings";
 export { foreignInvoke, ForeignInvokeInput } from "@/handlers/foreignInvoke";
-
-// export type HandlerName = Pick<Input, "function">["function"];

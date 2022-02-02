@@ -20,7 +20,7 @@
         "sourceType": "module",
         "project": "tsconfig.json"
     },
-    "ignorePatterns": [],
+    "ignorePatterns": ["build/*"],
     "rules": {
         "no-constant-condition": "warn",
         "no-else-return": "off",

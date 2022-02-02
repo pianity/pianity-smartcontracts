@@ -1,5 +1,5 @@
 import { ContractAssert } from "@/externals";
-import { State, Settings, WriteResult } from "@/erc1155";
+import { State, Settings, WriteResult } from "@/contractTypes";
 import { hasOwnProperty } from "@/utils";
 
 export type SettingsInput = {

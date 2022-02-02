@@ -1,4 +1,4 @@
-import { State } from "@/erc1155";
+import { State } from "@/contractTypes";
 
 export function hasOwnProperty(object: any, property: string) {
     return Object.prototype.hasOwnProperty.call(object, property);

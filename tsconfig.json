@@ -11,8 +11,9 @@
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "declaration": true,
-        "emitDeclarationOnly": true,
+        "declaration": false,
+        "emitDeclarationOnly": false,
+        "noEmit": true,
         "outDir": "dist",
         "baseUrl": "./",
         "paths": {

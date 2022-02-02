@@ -1,5 +1,5 @@
 import { ERR_NOTARGET } from "@/consts";
-import { ReadonlyResult, State, WriteResult } from "@/erc1155";
+import { ReadonlyResult, State, WriteResult } from "@/contractTypes";
 import { ContractAssert } from "@/externals";
 
 export type IsApprovedForAllInput = {

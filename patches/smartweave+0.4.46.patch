@@ -1,0 +1,42 @@
+diff --git a/node_modules/smartweave/lib/utils.js b/node_modules/smartweave/lib/utils.js
+index 539eb16..6dd6e15 100644
+--- a/node_modules/smartweave/lib/utils.js
++++ b/node_modules/smartweave/lib/utils.js
+@@ -80,12 +80,31 @@ function normalizeContractSource(contractSrc) {
+     // the ContractError exception.
+     // We then use `new Function()` which we can call and get back the returned handle function
+     // which has access to the per-instance globals.
+-    contractSrc = contractSrc
+-        .replace(/export\s+async\s+function\s+handle/gmu, 'async function handle')
+-        .replace(/export\s+function\s+handle/gmu, 'function handle')
+-        .replace(/\(\s*\(\)\s*=>\s*{/g, '')
+-        .replace(/\s*\(\s*function\s*\(\)\s*{/g, '')
+-        .replace(/}\s*\)\s*\(\)\s*;/g, '');
++    const srcSplit = contractSrc.split("\n");
++    const firstLine = srcSplit.findIndex((value) => value.trim().length !== 0);
++    const lastLine = (() => {
++        let index = srcSplit.length - 1;
++        for (index; index > 0; index--) {
++            if (srcSplit[index].trim().length !== 0) {
++                return index;
++            }
++        }
++        return -1;
++    })();
++    if (firstLine > -1 && lastLine > -1) {
++        if (
++            (/\(\s*\(\)\s*=>\s*{/g.test(srcSplit[firstLine]) ||
++                /\s*\(\s*function\s*\(\)\s*{/g.test(srcSplit[firstLine])) &&
++            /}\s*\)\s*\(\)\s*;/g.test(srcSplit[lastLine])
++        ) {
++            srcSplit.splice(firstLine, 1);
++            srcSplit.splice(lastLine - 1, 1);
++        }
++    }
++    contractSrc = srcSplit
++        .join("\n")
++        .replace(/export\s+async\s+function\s+handle/gmu, "async function handle")
++        .replace(/export\s+function\s+handle/gmu, "function handle");
+     return `
+     const [SmartWeave, BigNumber, clarity] = arguments;
+     clarity.SmartWeave = SmartWeave;

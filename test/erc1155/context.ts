@@ -4,7 +4,7 @@ import Arweave from "arweave";
 
 import ContractTestingEnv from "?/ContractTestingEnv";
 import { generateAddress } from "?/utils";
-import { State } from "@/erc1155";
+import { State } from "@/contractTypes";
 import { Input } from "@/handlers";
 
 type Context = {

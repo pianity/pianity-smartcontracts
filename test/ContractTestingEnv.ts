@@ -69,8 +69,6 @@ export default class ContractTestingEnv<STATE, INPUT> {
         initialState: STATE,
         contractId = `TEST-${srcPath}`,
     ) {
-        console.log("NEW CONTRACT", Math.random());
-
         this.srcPath = srcPath;
         this.contractId = contractId;
         this.initialState = initialState;

@@ -1,5 +1,5 @@
 import { ERR_INTEGER, ERR_NOTOKENID, PST } from "@/consts";
-import { State, Token, WriteResult } from "@/erc1155";
+import { State, Token, WriteResult } from "@/contractTypes";
 import { ContractAssert, Smartweave } from "@/externals";
 import { checkRoyalties, addTokenTo } from "@/handlers/transfer";
 
@@ -34,12 +34,13 @@ function mintToken(
 ) {
     ContractAssert(!(tokenId in state.tokens), `tokenId already exists: "${tokenId}".`);
 
-    if (royalties) checkRoyalties(royalties);
+    if (royalties) {
+        checkRoyalties(royalties);
+    }
 
-    const token = <Token>{
+    const token: Token = {
         ticker: `${PST}${state.nonce}`,
         royalties,
-        owners: undefined,
         balances: {},
     };
     state.nonce++;

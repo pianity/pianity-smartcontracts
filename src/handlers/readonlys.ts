@@ -1,5 +1,5 @@
 import { ERR_404TOKENID, ERR_NOTARGET, ERR_NOTOKENID, PST } from "@/consts";
-import { ReadonlyResult, State } from "@/erc1155";
+import { ReadonlyResult, State } from "@/contractTypes";
 import { ContractAssert } from "@/externals";
 import { balanceOf } from "@/handlers/transfer";
 

@@ -1,3 +1,7 @@
+import * as t from "io-ts";
+
+import { isLeft } from "fp-ts/lib/Either";
+import { PathReporter } from "io-ts/lib/PathReporter";
 import {
     ERR_404TOKENID,
     ERR_INTEGER,
@@ -10,42 +14,65 @@ import {
     PST,
     UNITY,
 } from "@/consts";
-import { State, Token, WriteResult } from "@/erc1155";
-import { ContractAssert } from "@/externals";
+import { State, Token, WriteResult } from "@/contractTypes";
+import { ContractAssert, ContractError } from "@/externals";
 import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
 
-export type TransferInput = {
-    function: "transfer";
-    from?: string;
-    target: string;
-    tokenId?: string;
-    qty?: number;
-    no?: number;
-    price?: number;
-};
+const TransferInputRequired = t.type({
+    function: t.literal("transfer"),
+    target: t.string,
+});
+const TransferInputOptional = t.partial({
+    from: t.string,
+    tokenId: t.string,
+    qty: t.number,
+    no: t.number,
+    price: t.number,
+});
+export const TransferInputCodec = t.intersection([TransferInputRequired, TransferInputOptional]);
+export type TransferInput = t.TypeOf<typeof TransferInputCodec>;
 
-export type TransferBatchInput = {
-    function: "transferBatch";
-    targets: string[];
-    froms: string[];
-    tokenIds: string[];
-    qtys?: number[];
-    prices?: number[];
-    nos?: number[];
-};
+const TransferBatchInputRequired = t.type({
+    function: t.literal("transferBatch"),
+    targets: t.array(t.string),
+    froms: t.array(t.string),
+    tokenIds: t.array(t.string),
+});
+const TransferBatchInputOptional = t.partial({
+    qtys: t.array(t.number),
+    prices: t.array(t.number),
+    nos: t.array(t.number),
+});
+export const TransferBatchInputCodec = t.intersection([
+    TransferBatchInputRequired,
+    TransferBatchInputOptional,
+]);
+export type TransferBatchInput = t.TypeOf<typeof TransferBatchInputCodec>;
 
-export type TransferRoyaltiesInput = {
-    function: "transferRoyalties";
-    target: string;
-    tokenId: string;
-    qty: number;
-};
+export const TransferRoyaltiesInputCodec = t.type({
+    function: t.literal("transferRoyalties"),
+    target: t.string,
+    tokenId: t.string,
+    qty: t.number,
+});
+export type TransferRoyaltiesInput = t.TypeOf<typeof TransferRoyaltiesInputCodec>;
 
-export function transfer(
-    state: State,
-    caller: string,
-    { target, qty, no, price, from = caller, tokenId = PST }: TransferInput,
-): WriteResult {
+function checkInput<INPUT, CODEC extends t.Type<INPUT, INPUT, unknown>>(
+    codec: CODEC,
+    input: INPUT,
+) {
+    const inputDecoded = codec.decode(input);
+    if (isLeft(inputDecoded)) {
+        throw new ContractError(PathReporter.report(inputDecoded).join("\n"));
+    } else {
+        console.log(inputDecoded);
+    }
+}
+
+export function transfer(state: State, caller: string, input: TransferInput): WriteResult {
+    checkInput(TransferInputCodec, input);
+    const { target, qty, no, price, from = caller, tokenId = PST } = input;
+
     ContractAssert(target, ERR_NOTARGET);
     ContractAssert(from !== target, ERR_INVALID);
     const token = state.tokens[tokenId];

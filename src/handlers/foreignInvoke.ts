@@ -1,6 +1,8 @@
 import { ERR_NOTARGET } from "@/consts";
-import { Action, handle, SmartcontractResult, State } from "@/erc1155";
+import { handle } from "@/erc1155";
+import { Action, SmartcontractResult, State } from "@/contractTypes";
 import { ContractAssert, Smartweave } from "@/externals";
+import { Input } from "@/handlers";
 
 export type ForeignInvokeInput = {
     function: "foreignInvoke";
@@ -33,7 +35,7 @@ export async function foreignInvoke(
     );
     state.invocations.push(target + invocationId);
 
-    const foreignAction: Action = {
+    const foreignAction: Action<Input> = {
         input: invocation,
         caller,
     };
