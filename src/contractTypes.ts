@@ -1,4 +1,4 @@
-import { Input } from "@/handlers";
+import * as io from "io-ts";
 
 export type Token = {
     ticker: string;
@@ -7,20 +7,32 @@ export type Token = {
     royalties?: Record<string, number>;
 };
 
-export type Settings = {
-    primaryRate: number;
-    secondaryRate: number;
-    royaltyRate: number;
+/**
+ * Props present in the initial state settings.
+ *
+ * This is separated from the SettingsCodec definition because it's also used in {@link settings}
+ * to make the input codec, which requires a partial version of these props
+ */
+export const SettingsKnownProps = {
+    primaryRate: io.number,
+    secondaryRate: io.number,
+    royaltyRate: io.number,
 
-    allowFreeTransfer: boolean;
-    paused: boolean;
+    allowFreeTransfer: io.boolean,
+    paused: io.boolean,
 
-    communityChest: string;
+    communityChest: io.string,
 
-    contractOwners: string[];
-    contractSuperOwners: string[];
-    foreignContracts: string[];
+    contractOwners: io.array(io.string),
+    contractSuperOwners: io.array(io.string),
+    foreignContracts: io.array(io.string),
 };
+
+export const SettingsCodec = io.intersection([
+    io.type(SettingsKnownProps),
+    io.record(io.string, io.unknown),
+]);
+export type Settings = io.TypeOf<typeof SettingsCodec>;
 
 export type State = {
     name: string;

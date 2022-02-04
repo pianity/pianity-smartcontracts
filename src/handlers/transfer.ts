@@ -1,7 +1,5 @@
-import * as t from "io-ts";
+import * as io from "io-ts";
 
-import { isLeft } from "fp-ts/lib/Either";
-import { PathReporter } from "io-ts/lib/PathReporter";
 import {
     ERR_404TOKENID,
     ERR_INTEGER,
@@ -17,57 +15,22 @@ import {
 import { State, Token, WriteResult } from "@/contractTypes";
 import { ContractAssert, ContractError } from "@/externals";
 import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
+import { checkInput } from "@/utils";
 
-const TransferInputRequired = t.type({
-    function: t.literal("transfer"),
-    target: t.string,
-});
-const TransferInputOptional = t.partial({
-    from: t.string,
-    tokenId: t.string,
-    qty: t.number,
-    no: t.number,
-    price: t.number,
-});
-export const TransferInputCodec = t.intersection([TransferInputRequired, TransferInputOptional]);
-export type TransferInput = t.TypeOf<typeof TransferInputCodec>;
-
-const TransferBatchInputRequired = t.type({
-    function: t.literal("transferBatch"),
-    targets: t.array(t.string),
-    froms: t.array(t.string),
-    tokenIds: t.array(t.string),
-});
-const TransferBatchInputOptional = t.partial({
-    qtys: t.array(t.number),
-    prices: t.array(t.number),
-    nos: t.array(t.number),
-});
-export const TransferBatchInputCodec = t.intersection([
-    TransferBatchInputRequired,
-    TransferBatchInputOptional,
+const TransferInputCodec = io.intersection([
+    io.type({
+        function: io.literal("transfer"),
+        target: io.string,
+    }),
+    io.partial({
+        from: io.string,
+        tokenId: io.string,
+        qty: io.number,
+        no: io.number,
+        price: io.number,
+    }),
 ]);
-export type TransferBatchInput = t.TypeOf<typeof TransferBatchInputCodec>;
-
-export const TransferRoyaltiesInputCodec = t.type({
-    function: t.literal("transferRoyalties"),
-    target: t.string,
-    tokenId: t.string,
-    qty: t.number,
-});
-export type TransferRoyaltiesInput = t.TypeOf<typeof TransferRoyaltiesInputCodec>;
-
-function checkInput<INPUT, CODEC extends t.Type<INPUT, INPUT, unknown>>(
-    codec: CODEC,
-    input: INPUT,
-) {
-    const inputDecoded = codec.decode(input);
-    if (isLeft(inputDecoded)) {
-        throw new ContractError(PathReporter.report(inputDecoded).join("\n"));
-    } else {
-        console.log(inputDecoded);
-    }
-}
+export type TransferInput = io.TypeOf<typeof TransferInputCodec>;
 
 export function transfer(state: State, caller: string, input: TransferInput): WriteResult {
     checkInput(TransferInputCodec, input);
@@ -104,11 +67,29 @@ export function transfer(state: State, caller: string, input: TransferInput): Wr
     return { state };
 }
 
+const TransferBatchInputCodec = io.intersection([
+    io.type({
+        function: io.literal("transferBatch"),
+        targets: io.array(io.string),
+        froms: io.array(io.string),
+        tokenIds: io.array(io.string),
+    }),
+    io.partial({
+        qtys: io.array(io.number),
+        prices: io.array(io.number),
+        nos: io.array(io.number),
+    }),
+]);
+export type TransferBatchInput = io.TypeOf<typeof TransferBatchInputCodec>;
+
 export function transferBatch(
     state: State,
     caller: string,
-    { targets, froms, tokenIds, qtys, prices, nos }: TransferBatchInput,
+    input: TransferBatchInput,
 ): WriteResult {
+    checkInput(TransferBatchInputCodec, input);
+    const { targets, froms, tokenIds, qtys, prices, nos } = input;
+
     ContractAssert(froms, ERR_NOFROM);
     ContractAssert(tokenIds, ERR_NOTOKENID);
     ContractAssert(targets, ERR_NOTARGET);
@@ -139,11 +120,20 @@ export function transferBatch(
     return { state };
 }
 
+export const TransferRoyaltiesInputCodec = io.type({
+    function: io.literal("transferRoyalties"),
+    target: io.string,
+    tokenId: io.string,
+    qty: io.number,
+});
+export type TransferRoyaltiesInput = io.TypeOf<typeof TransferRoyaltiesInputCodec>;
+
 export function transferRoyalties(
     state: State,
     caller: string,
     input: TransferRoyaltiesInput,
 ): WriteResult {
+    checkInput(TransferRoyaltiesInputCodec, input);
     const { target, tokenId, qty } = input;
 
     ContractAssert(target, ERR_NOTARGET);

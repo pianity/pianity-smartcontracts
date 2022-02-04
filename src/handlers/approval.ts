@@ -1,24 +1,30 @@
+import * as io from "io-ts";
+
 import { ERR_NOTARGET } from "@/consts";
 import { ReadonlyResult, State, WriteResult } from "@/contractTypes";
 import { ContractAssert } from "@/externals";
+import { checkInput } from "@/utils";
 
-export type IsApprovedForAllInput = {
-    function: "isApprovedForAll";
-    target: string;
-    owner: string;
-};
+export const IsApprovedForAllInputCodec = io.type({
+    function: io.literal("isApprovedForAll"),
+    target: io.string,
+    owner: io.string,
+});
+export type IsApprovedForAllInput = io.TypeOf<typeof IsApprovedForAllInputCodec>;
 
-export type SetApprovalForAllInput = {
-    function: "setApprovalForAll";
-    target: string;
-    approved: boolean;
-};
+export const SetApprovalForAllInputCodec = io.type({
+    function: io.literal("setApprovalForAll"),
+    target: io.string,
+    approved: io.boolean,
+});
+export type SetApprovalForAllInput = io.TypeOf<typeof SetApprovalForAllInputCodec>;
 
 export function isApprovedForAll(
     state: State,
     caller: string,
     input: IsApprovedForAllInput,
 ): ReadonlyResult<{ approved: boolean }> {
+    checkInput(IsApprovedForAllInputCodec, input);
     const { target, owner } = input;
 
     ContractAssert(owner, "No owner specified");
@@ -33,8 +39,8 @@ export function setApprovalForAll(
     caller: string,
     input: SetApprovalForAllInput,
 ): WriteResult {
-    const { approved } = input;
-    const { target } = input;
+    checkInput(SetApprovalForAllInputCodec, input);
+    const { approved, target } = input;
 
     ContractAssert(target, ERR_NOTARGET);
     ContractAssert(typeof approved !== "undefined", "No approved parameter specified");

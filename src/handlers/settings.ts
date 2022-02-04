@@ -1,13 +1,23 @@
-import { ContractAssert } from "@/externals";
-import { State, Settings, WriteResult } from "@/contractTypes";
-import { hasOwnProperty } from "@/utils";
+import * as io from "io-ts";
 
-export type SettingsInput = {
-    function: "settings";
-    settings: Settings;
-};
+import { isLeft } from "fp-ts/lib/Either";
+import { PathReporter } from "io-ts/lib/PathReporter";
+import { ContractAssert } from "@/externals";
+import { State, Settings, WriteResult, SettingsCodec, SettingsKnownProps } from "@/contractTypes";
+import { checkInput, hasOwnProperty } from "@/utils";
+
+export const SettingsInputCodec = io.intersection([
+    io.type({
+        function: io.literal("settings"),
+        settings: io.partial(SettingsKnownProps),
+    }),
+    io.record(io.string, io.unknown),
+]);
+export type SettingsInput = io.TypeOf<typeof SettingsInputCodec>;
 
 export function settings(state: State, caller: string, input: SettingsInput): WriteResult {
+    checkInput(SettingsInputCodec, input);
+
     const { settings: untrustedSettings } = input;
     const { contractSuperOwners, contractOwners } = state.settings;
 
@@ -27,10 +37,11 @@ export function settings(state: State, caller: string, input: SettingsInput): Wr
         "Caller is not Super Owner",
     );
 
-    sanitizeSettings(state.settings, untrustedSettings);
+    // TODO: is io-ts able to replace this 100%?
+    // sanitizeSettings(state.settings, untrustedSettings);
 
     ContractAssert(
-        untrustedSettings.contractSuperOwners.length > 0,
+        !untrustedSettings.contractSuperOwners || untrustedSettings.contractSuperOwners.length > 0,
         "Can't delete all the Super Owners",
     );
 
@@ -39,17 +50,17 @@ export function settings(state: State, caller: string, input: SettingsInput): Wr
     return { state };
 }
 
-function sanitizeSettings(settings: Settings, untrustedSettings: Settings) {
-    const untrustedAny = untrustedSettings as any;
-
-    for (const key of Object.keys(untrustedAny)) {
-        const untrustedType = typeof untrustedAny[key];
-        const stateType = typeof settings[key as keyof Settings];
-        const settingsHasKey = hasOwnProperty(settings, key);
-
-        ContractAssert(
-            !settingsHasKey || (settingsHasKey && untrustedType === stateType),
-            `Type of ${key} (${untrustedType}) doesn't match with ${stateType}`,
-        );
-    }
-}
+// function sanitizeSettings(settings: Settings, untrustedSettings: Settings) {
+//     const untrustedAny = untrustedSettings as any;
+//
+//     for (const key of Object.keys(untrustedAny)) {
+//         const untrustedType = typeof untrustedAny[key];
+//         const stateType = typeof settings[key as keyof Settings];
+//         const settingsHasKey = hasOwnProperty(settings, key);
+//
+//         ContractAssert(
+//             !settingsHasKey || (settingsHasKey && untrustedType === stateType),
+//             `Type of ${key} (${untrustedType}) doesn't match with ${stateType}`,
+//         );
+//     }
+// }

@@ -1,16 +1,22 @@
+import * as io from "io-ts";
+
 import { ERR_INTEGER, ERR_NOTOKENID, PST } from "@/consts";
 import { State, Token, WriteResult } from "@/contractTypes";
 import { ContractAssert, Smartweave } from "@/externals";
 import { checkRoyalties, addTokenTo } from "@/handlers/transfer";
+import { checkInput } from "@/utils";
 
-export type MintInput = {
-    function: "mint";
-    royalties: Record<string, number>;
-    qty: number;
-    no: number;
-};
+export const MintInputCodec = io.type({
+    function: io.literal("mint"),
+    royalties: io.record(io.string, io.number),
+    qty: io.number,
+    no: io.number,
+});
+export type MintInput = io.TypeOf<typeof MintInputCodec>;
 
 export function mint(state: State, caller: string, input: MintInput): WriteResult {
+    checkInput(MintInputCodec, input);
+
     const { royalties, qty, no } = input;
     const { contractOwners } = state.settings;
 

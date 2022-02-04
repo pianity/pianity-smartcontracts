@@ -1,4 +1,20 @@
+import { isLeft } from "fp-ts/lib/Either";
+import { Type } from "io-ts";
+import { PathReporter } from "io-ts/lib/PathReporter";
+
 import { State } from "@/contractTypes";
+import { ContractError } from "@/externals";
+
+export function checkInput<INPUT, CODEC extends Type<INPUT, INPUT, unknown>>(
+    codec: CODEC,
+    input: INPUT,
+) {
+    const inputDecoded = codec.decode(input);
+    if (isLeft(inputDecoded)) {
+        const report = PathReporter.report(inputDecoded).join("\n");
+        throw new ContractError(report);
+    }
+}
 
 export function hasOwnProperty(object: any, property: string) {
     return Object.prototype.hasOwnProperty.call(object, property);
