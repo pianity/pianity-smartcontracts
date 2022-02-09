@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 import Arweave from "arweave";
 import { createContractExecutionEnvironment } from "smartweave/lib/contract-load";
-import { ContractHandler, ContractInteractionResult, execute } from "smartweave/lib/contract-step";
+import { ContractHandler, execute } from "smartweave/lib/contract-step";
 import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";
 import { InteractionTx } from "smartweave/lib/interaction-tx";
 
@@ -22,6 +22,12 @@ export type Contract<STATE> = {
     src: string;
     txId: string;
     initialState: STATE;
+};
+
+type ContractInteractionResult<T> = {
+    type: "ok" | "error" | "exception";
+    result: any;
+    state: T;
 };
 
 enum ContractErrorKind {
@@ -55,6 +61,8 @@ export default class ContractTestingEnv<STATE, INPUT> {
 
     readonly contractId: string;
 
+    currentHeight: number;
+
     // TODO: Is this useful?
     // constructor() {
     //     // this.pushState = this.pushState.bind(this);
@@ -74,6 +82,8 @@ export default class ContractTestingEnv<STATE, INPUT> {
         this.initialState = initialState;
 
         this.contract = this.deployContract();
+
+        this.currentHeight = 0;
     }
 
     // deploy(contract: Contract<STATE>): string {
@@ -119,18 +129,18 @@ export default class ContractTestingEnv<STATE, INPUT> {
         input: INPUT,
         block?: Block,
         forcedCurrentState?: STATE,
-    ): Promise<ContractInteractionResult> {
+    ): Promise<ContractInteractionResult<STATE>> {
         try {
-            // note: no need to copy state here, as it is copied by execute method:
+            // NOTE: no need to copy state here, as it is copied by execute method:
             // https://github.com/ArweaveTeam/SmartWeave/blob/788a974e66494ef2ab8f876024e72bf363d4c4a4/src/contract-step.ts#L56
             const currentState = forcedCurrentState || this.currentState();
 
             const prevActiveTx = this.contract.env.swGlobal._activeTx;
             this.contract.env.swGlobal._activeTx = ContractTestingEnv.mockActiveTx(
-                block || { height: 1000, timestamp: 5555 },
+                block || { height: this.currentHeight, timestamp: Date.now() / 1000 },
             );
 
-            const res: ContractInteractionResult = await execute(
+            const res: ContractInteractionResult<STATE> = await execute(
                 this.contract.env.handler,
                 {
                     input,
@@ -145,6 +155,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
 
             this.pushState(this.contractId, res.state || currentState);
             this.contract.env.swGlobal._activeTx = prevActiveTx;
+            this.currentHeight += 1;
 
             return res;
         } catch (e) {

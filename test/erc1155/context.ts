@@ -52,8 +52,8 @@ test.before(async (t) => {
             PTY: {
                 ticker: "PTY",
                 balances: {
-                    [superOwnerAddress]: 900000000000000,
-                    [apiAddress]: 100000000000000,
+                    [superOwnerAddress]: "900000000000000",
+                    [apiAddress]: "100000000000000",
                 },
             },
         },

@@ -3,7 +3,7 @@ import * as io from "io-ts";
 export type Token = {
     ticker: string;
     owners?: string[]; // Ordered list of NFTs' owners
-    balances: Record<string, number>; // owner -> balance
+    balances: Record<string, string>; // owner -> balance
     royalties?: Record<string, number>;
 };
 

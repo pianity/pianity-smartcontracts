@@ -1,21 +1,11 @@
 import * as io from "io-ts";
 
-import {
-    ERR_404TOKENID,
-    ERR_INTEGER,
-    ERR_INVALID,
-    ERR_NOFROM,
-    ERR_NOQTY,
-    ERR_NOROYALTIES,
-    ERR_NOTARGET,
-    ERR_NOTOKENID,
-    PST,
-    UNITY,
-} from "@/consts";
+import { ERR_INTEGER, PST, UNIT } from "@/consts";
 import { State, Token, WriteResult } from "@/contractTypes";
-import { ContractAssert, ContractError } from "@/externals";
+import { BigNumber, ContractAssert } from "@/externals";
 import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
 import { checkInput } from "@/utils";
+import { balanceOf } from "@/handlers/readonlys";
 
 const TransferInputCodec = io.intersection([
     io.type({
@@ -25,44 +15,59 @@ const TransferInputCodec = io.intersection([
     io.partial({
         from: io.string,
         tokenId: io.string,
-        qty: io.number,
+        qty: io.string,
         no: io.number,
-        price: io.number,
+        price: io.string,
     }),
 ]);
 export type TransferInput = io.TypeOf<typeof TransferInputCodec>;
 
 export function transfer(state: State, caller: string, input: TransferInput): WriteResult {
-    checkInput(TransferInputCodec, input);
-    const { target, qty, no, price, from = caller, tokenId = PST } = input;
+    const {
+        target,
+        qty,
+        no,
+        price,
+        from = caller,
+        tokenId = PST,
+    } = checkInput(TransferInputCodec, input);
 
-    ContractAssert(target, ERR_NOTARGET);
-    ContractAssert(from !== target, ERR_INVALID);
     const token = state.tokens[tokenId];
-    ContractAssert(token, ERR_404TOKENID);
-    ContractAssert(!token.owners || (no && !qty), "no. must be set and qty unset for NFTs");
-    ContractAssert(token.owners || (!no && qty), "qty must be set and no unset for tokens");
+
+    ContractAssert(from !== target, "transfer: `from` cannot be equal to `target`");
+    ContractAssert(token, "transfer: `tokenId` doesn't exist");
+    ContractAssert(
+        !token.owners || (no && !qty),
+        "transfer: `no` must be set and `qty` unset for NFTs",
+    );
+    ContractAssert(
+        token.owners || (!no && qty),
+        "transfer: `qty` must be set and `no` unset for tokens",
+    );
     ContractAssert(
         isApprovedOrOwner(state, caller, from),
-        "Sender is not approved nor the owner of the token",
+        "transfer: Sender is not approved nor the owner of the token",
     );
 
     if (token.royalties) {
         const { contractOwners } = state.settings;
+
         ContractAssert(
             state.settings.allowFreeTransfer || contractOwners.includes(caller),
-            "Free transfers not allowed",
+            "transfer: Free transfers are not allowed",
         );
         ContractAssert(
             !price || isApprovedForAllHelper(state, caller, target),
-            "Receiver is not approved",
+            "transfer: Receiver is not approved",
         );
-        removeTokenFrom(state, target, PST, price || 0);
-        pay(state, token, from, price || 0);
+
+        removeTokenFrom(state, target, PST, new BigNumber(price || 0));
+        pay(state, token, from, new BigNumber(price || 0));
     }
 
-    removeTokenFrom(state, from, tokenId, qty || 1, no);
-    addTokenTo(state, target, tokenId, qty || 1, no);
+    console.log("QTY:", qty);
+    removeTokenFrom(state, from, tokenId, new BigNumber(qty || 1), no);
+    addTokenTo(state, target, tokenId, new BigNumber(qty || 1), no);
 
     return { state };
 }
@@ -75,8 +80,8 @@ const TransferBatchInputCodec = io.intersection([
         tokenIds: io.array(io.string),
     }),
     io.partial({
-        qtys: io.array(io.number),
-        prices: io.array(io.number),
+        qtys: io.array(io.string),
+        prices: io.array(io.string),
         nos: io.array(io.number),
     }),
 ]);
@@ -87,17 +92,28 @@ export function transferBatch(
     caller: string,
     input: TransferBatchInput,
 ): WriteResult {
-    checkInput(TransferBatchInputCodec, input);
-    const { targets, froms, tokenIds, qtys, prices, nos } = input;
+    const { targets, froms, tokenIds, qtys, prices, nos } = checkInput(
+        TransferBatchInputCodec,
+        input,
+    );
 
-    ContractAssert(froms, ERR_NOFROM);
-    ContractAssert(tokenIds, ERR_NOTOKENID);
-    ContractAssert(targets, ERR_NOTARGET);
-    ContractAssert(tokenIds.length === froms.length, "tokenIds and froms length mismatch");
-    ContractAssert(tokenIds.length === targets.length, "tokenIds and targets length mismatch");
-    ContractAssert(qtys || nos, "At least one of qtys or nos must be set");
-    ContractAssert(!qtys || tokenIds.length === qtys.length, "tokenIds and qtys length mismatch");
-    ContractAssert(!nos || tokenIds.length === nos.length, "tokenIds and qtys length mismatch");
+    ContractAssert(
+        tokenIds.length === froms.length,
+        "transferBatch: `tokenIds` and `froms` length mismatch",
+    );
+    ContractAssert(
+        tokenIds.length === targets.length,
+        "transferBatch: `tokenIds` and `targets` length mismatch",
+    );
+    ContractAssert(qtys || nos, "transferBatch: At least one of `qtys` or `nos` must be set");
+    ContractAssert(
+        !qtys || tokenIds.length === qtys.length,
+        "transferBatch: `tokenIds` and `qtys` length mismatch",
+    );
+    ContractAssert(
+        !nos || tokenIds.length === nos.length,
+        "transferBatch: `tokenIds` and `nos` length mismatch",
+    );
 
     for (const i in tokenIds) {
         const from = typeof froms[i] === "undefined" ? caller : froms[i];
@@ -105,7 +121,7 @@ export function transferBatch(
         const qty = qtys ? qtys[i] : undefined;
         const price = prices ? prices[i] : undefined;
 
-        ContractAssert(targets[i], ERR_NOTARGET);
+        ContractAssert(targets[i], `transferBatch: No target found for \`tokenIds[${i}]\``);
         transfer(state, caller, {
             function: "transfer",
             from,
@@ -133,18 +149,16 @@ export function transferRoyalties(
     caller: string,
     input: TransferRoyaltiesInput,
 ): WriteResult {
-    checkInput(TransferRoyaltiesInputCodec, input);
-    const { target, tokenId, qty } = input;
-
-    ContractAssert(target, ERR_NOTARGET);
-    ContractAssert(qty, ERR_NOQTY);
-    ContractAssert(target !== caller, "Target must be different from the caller");
-    ContractAssert(tokenId, ERR_NOTOKENID);
-    ContractAssert(qty > 0, "Invalid value for qty. Must be positive");
-
+    const { target, tokenId, qty } = checkInput(TransferRoyaltiesInputCodec, input);
     const token = state.tokens[tokenId];
-    ContractAssert(token, "tokenId does not exist");
-    ContractAssert(token.royalties, "Royalties are not set for this token");
+
+    ContractAssert(
+        target !== caller,
+        "transferRoyalties: `target` must be different from the caller",
+    );
+    ContractAssert(qty > 0, "transferRoyalties: `qty` must be positive");
+    ContractAssert(token, "transferRoyalties: `tokenId` doesn't exist");
+    ContractAssert(token.royalties, "transferRoyalties: Royalties are not set for this token");
 
     removeRoyaltiesFrom(token, caller, qty);
     addRoyaltiesTo(token, target, qty);
@@ -158,104 +172,127 @@ export function addTokenTo(
     state: State,
     target: string,
     tokenId: string,
-    qty: number,
+    qty: BigNumber,
     no?: number,
 ) {
-    ContractAssert(Number.isInteger(qty), ERR_INTEGER);
-    ContractAssert(qty >= 0, "Invalid value for qty. Must be positive");
-    if (qty === 0) return;
+    ContractAssert(qty.isInteger(), "addTokenTo: `qty` must be an integer");
+    ContractAssert(qty.gte(0), "addTokenTo: `qty` must be positive");
+
+    if (qty.eq(0)) return;
 
     const token = state.tokens[tokenId];
-    ContractAssert(token, "tokenId does not exist");
+    ContractAssert(token, "addTokenTo: `tokenId` does not exist");
 
     if (!(target in token.balances)) {
-        token.balances[target] = 0;
+        token.balances[target] = "0";
     }
-    token.balances[target] += qty;
+    token.balances[target] = new BigNumber(token.balances[target]).plus(qty).toString();
 
     if (token.owners && no) {
-        ContractAssert(Number.isInteger(no), ERR_INTEGER);
+        ContractAssert(Number.isInteger(no), "addTokenTo: `no` must be an integer");
         ContractAssert(no > 0, "Invalid value for no. Must be strictly positive");
-        ContractAssert(qty === 1, "Amount must be 1 for NFTs");
+        ContractAssert(qty.eq(1), "Amount must be 1 for NFTs");
         ContractAssert(token.owners[no - 1] === "", "Token no. is already attributed");
         token.owners[no - 1] = target;
     }
 }
 
-function removeTokenFrom(state: State, from: string, tokenId: string, qty: number, no?: number) {
+function removeTokenFrom(state: State, from: string, tokenId: string, qty: BigNumber, no?: number) {
     const fromBalance = balanceOf(state, tokenId, from);
 
-    ContractAssert(fromBalance > 0, "Sender does not own the token");
-    ContractAssert(qty >= 0, "Invalid value for qty. Must be positive");
-    ContractAssert(fromBalance >= qty, "Insufficient balance");
-    if (qty === 0) return;
+    ContractAssert(fromBalance.gt(0), "removeTokenFrom: Sender does not own the token");
+    ContractAssert(qty.gte(0), "removeTokenFrom: Invalid value for qty. Must be positive");
+    ContractAssert(fromBalance.gte(qty), "removeTokenFrom: Insufficient balance");
+
+    if (qty.eq(0)) {
+        return;
+    }
 
     const token = state.tokens[tokenId];
-    const newBalance = token.balances[from] - qty;
+    const newBalance = new BigNumber(token.balances[from]).minus(qty).toString();
 
     if (token.owners) {
-        ContractAssert(no, "No no. specified");
+        ContractAssert(no, "removeTokenFrom: No no. specified");
         ContractAssert(Number.isInteger(no), ERR_INTEGER);
-        ContractAssert(no > 0, "Invalid value for no. M(ust be strictly positive");
-        ContractAssert(qty === 1, "Amount must be 1 for NFTs");
-        ContractAssert(token.owners[no - 1] === from, "Token no. is not owned by caller");
+        ContractAssert(no > 0, "removeTokenFrom: Invalid value for no. Must be strictly positive");
+        ContractAssert(qty.eq(1), "removeTokenFrom: Amount must be 1 for NFTs");
+        ContractAssert(
+            token.owners[no - 1] === from,
+            "removeTokenFrom: Token no. is not owned by caller",
+        );
         token.owners[no - 1] = "";
     }
 
-    if (newBalance === 0) {
+    if (newBalance === "0") {
         delete token.balances[from];
     } else {
         token.balances[from] = newBalance;
     }
 }
 
-function pay(state: State, token: Token, from: string, price: number) {
-    ContractAssert(token.royalties, ERR_NOROYALTIES);
-    ContractAssert(Number.isInteger(price), ERR_INTEGER);
-    ContractAssert(price >= 0, "Invalid value for price. Must be positive");
-    if (price === 0) {
+function pay(state: State, token: Token, from: string, price: BigNumber) {
+    ContractAssert(token.royalties, "pay: Token doesn't have any fees");
+    ContractAssert(price.isInteger(), ERR_INTEGER);
+    ContractAssert(price.gte(0), "pay: `price` must be positive");
+    ContractAssert(price.mod(1_000_000).eq(0), "pay: `price` must be a multiple of 1_000_000");
+
+    if (price.eq(0)) {
         return;
     }
 
     if (from.length === 0) {
         // primary sales
-        addTokenTo(state, state.settings.communityChest, PST, price * state.settings.primaryRate);
+        addTokenTo(
+            state,
+            state.settings.communityChest,
+            PST,
+            price.multipliedBy(state.settings.primaryRate),
+        );
         for (const [target, split] of Object.entries(token.royalties)) {
             addTokenTo(
                 state,
                 target,
                 PST,
-                (price * (1 - state.settings.primaryRate) * split) / UNITY,
+                price.multipliedBy((1 - state.settings.primaryRate) * split).dividedBy(UNIT),
             );
         }
     } else {
         // secondary sales
-        const netValue = price * (1 - state.settings.secondaryRate - state.settings.royaltyRate);
+        const netValue = price.multipliedBy(
+            1 - state.settings.secondaryRate - state.settings.royaltyRate,
+        );
         addTokenTo(state, from, PST, netValue);
-        addTokenTo(state, state.settings.communityChest, PST, price * state.settings.secondaryRate);
+        addTokenTo(
+            state,
+            state.settings.communityChest,
+            PST,
+            price.multipliedBy(state.settings.secondaryRate),
+        );
         for (const [target, split] of Object.entries(token.royalties)) {
-            addTokenTo(state, target, PST, (price * state.settings.royaltyRate * split) / UNITY);
+            addTokenTo(
+                state,
+                target,
+                PST,
+                price.multipliedBy(state.settings.royaltyRate * split).dividedBy(UNIT),
+            );
         }
     }
 }
 
-export function balanceOf(state: State, tokenId: string, target: string): number {
-    const token = state.tokens[tokenId];
-    ContractAssert(token, ERR_404TOKENID);
-    return token.balances[target] ?? 0;
-}
-
 export function checkRoyalties(royalties: Record<string, number>) {
     const sum = Object.values(royalties).reduce((acc, val) => {
-        ContractAssert(Number.isInteger(val), `${ERR_INTEGER} {royalties}`);
-        ContractAssert(val > 0, "Royalties must be strictly positive");
+        ContractAssert(Number.isInteger(val), `checkRoyalties: Royalties must be integers`);
+        ContractAssert(val > 0, "checkRoyalties: Royalties must be strictly positive");
         return acc + val;
     }, 0);
-    ContractAssert(sum === UNITY, `Sum of royalties shares must be ${UNITY}`);
+    ContractAssert(
+        sum === UNIT,
+        `checkRoyalties: Sum of royalties shares must be ${UNIT}; was ${sum}`,
+    );
 }
 
 function addRoyaltiesTo(token: Token, target: string, qty: number) {
-    ContractAssert(token.royalties, ERR_NOROYALTIES);
+    ContractAssert(token.royalties, "addRoyaltiesTo: Token doesn't have any royalties");
     if (!(target in token.royalties)) {
         token.royalties[target] = 0;
     }
@@ -263,8 +300,8 @@ function addRoyaltiesTo(token: Token, target: string, qty: number) {
 }
 
 function removeRoyaltiesFrom(token: Token, from: string, qty: number) {
-    ContractAssert(token.royalties, ERR_NOROYALTIES);
-    ContractAssert(Number.isInteger(qty), `${ERR_INTEGER} {royalties}`);
+    ContractAssert(token.royalties, "removeRoyaltiesFrom: Token doesn't have any royalties");
+    ContractAssert(Number.isInteger(qty), "removeRoyaltiesFrom: Royalties must be integers");
 
     const fromRoyalties = token.royalties[from] || 0;
     ContractAssert(fromRoyalties > 0, "Sender does not own royalties on the token");

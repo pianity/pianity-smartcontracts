@@ -1,7 +1,7 @@
 import { ERR_NOTARGET } from "@/consts";
 import { handle } from "@/erc1155";
 import { Action, SmartcontractResult, State } from "@/contractTypes";
-import { ContractAssert, Smartweave } from "@/externals";
+import { ContractAssert, SmartWeave } from "@/externals";
 import { Input } from "@/handlers";
 
 export type ForeignInvokeInput = {
@@ -24,7 +24,7 @@ export async function foreignInvoke(
     ContractAssert(state.settings.foreignContracts, "No foreignContracts specified");
     ContractAssert(state.settings.foreignContracts.includes(target), "Invalid auction contract");
 
-    const foreignState = await Smartweave.contracts.readContractState(target);
+    const foreignState = await SmartWeave.contracts.readContractState(target);
     ContractAssert(foreignState.foreignCalls, "Contract is missing support for foreign calls");
 
     const invocation = foreignState.foreignCalls[invocationId];
