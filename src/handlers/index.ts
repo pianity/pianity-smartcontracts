@@ -1,7 +1,7 @@
 import { BalanceInput, OwnerInput, RoyaltiesInput, TickerInput } from "@/handlers/readonlys";
 import { IsApprovedForAllInput, SetApprovalForAllInput } from "@/handlers/approval";
 import { TransferBatchInput, TransferInput, TransferRoyaltiesInput } from "@/handlers/transfer";
-import { MintInput } from "@/handlers/mint";
+import { BurnInput, MintInput } from "@/handlers/mint";
 import { SettingsInput } from "@/handlers/settings";
 import { ForeignInvokeInput } from "@/handlers/foreignInvoke";
 
@@ -24,5 +24,6 @@ export type Input =
     | TransferBatchInput
     | TransferRoyaltiesInput
     | MintInput
+    | BurnInput
     | SettingsInput
     | ForeignInvokeInput;

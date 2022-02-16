@@ -63,3 +63,21 @@ export function mint(state: State, caller: string, input: MintInput): WriteResul
 
     return { state };
 }
+
+export const BurnInputCodec = io.type({
+    function: io.literal("burn"),
+    tokenId: io.string,
+});
+export type BurnInput = io.TypeOf<typeof BurnInputCodec>;
+
+export function burn(state: State, caller: string, input: BurnInput): WriteResult {
+    const { tokenId } = checkInput(BurnInputCodec, input);
+    const { contractSuperOwners } = state.settings;
+
+    ContractAssert(state.tokens[tokenId], "burn: `tokenId` doesn't exist");
+    ContractAssert(contractSuperOwners.includes(caller), "burn: `caller` isn't a super owner");
+
+    delete state.tokens[tokenId];
+
+    return { state };
+}

@@ -3,6 +3,7 @@ import * as io from "io-ts";
 import { ERR_404TOKENID, ERR_NOTARGET, ERR_NOTOKENID, PST } from "@/consts";
 import { ReadonlyResult, State } from "@/contractTypes";
 import { BigNumber, ContractAssert } from "@/externals";
+import { checkInput } from "@/utils";
 
 export const TickerInputCodec = io.intersection([
     io.type({
@@ -14,9 +15,14 @@ export const TickerInputCodec = io.intersection([
 ]);
 export type TickerInput = io.TypeOf<typeof TickerInputCodec>;
 
-export function ticker(state: State, caller: string, input: TickerInput): ReadonlyResult {
-    const tokenId = input.tokenId || PST;
-    const ticker = tickerOf(state, tokenId);
+export function ticker(
+    state: State,
+    caller: string,
+    input: TickerInput,
+): ReadonlyResult<{ ticker: string }> {
+    const { tokenId } = checkInput(TickerInputCodec, input);
+
+    const ticker = tickerOf(state, tokenId || PST);
 
     return { result: { ticker } };
 }
@@ -32,13 +38,18 @@ export const BalanceInputCodec = io.intersection([
 ]);
 export type BalanceInput = io.TypeOf<typeof BalanceInputCodec>;
 
-export function balance(state: State, caller: string, input: BalanceInput): ReadonlyResult {
-    const target = input.target || caller;
-    const tokenId = input.tokenId || PST;
+export function balance(
+    state: State,
+    caller: string,
+    input: BalanceInput,
+): ReadonlyResult<{ target: string; balance: string }> {
+    const { target, tokenId } = checkInput(BalanceInputCodec, input);
 
-    const balance = balanceOf(state, tokenId, target);
+    const effectiveTarget = target || caller;
 
-    return { result: { target, balance } };
+    const balance = balanceOf(state, tokenId || PST, effectiveTarget);
+
+    return { result: { target: effectiveTarget, balance: balance.toString() } };
 }
 
 export const RoyaltiesInputCodec = io.type({
@@ -48,8 +59,12 @@ export const RoyaltiesInputCodec = io.type({
 });
 export type RoyaltiesInput = io.TypeOf<typeof RoyaltiesInputCodec>;
 
-export function royalties(state: State, caller: string, input: RoyaltiesInput): ReadonlyResult {
-    const { target, tokenId } = input;
+export function royalties(
+    state: State,
+    caller: string,
+    input: RoyaltiesInput,
+): ReadonlyResult<{ royalties: number }> {
+    const { target, tokenId } = checkInput(RoyaltiesInputCodec, input);
 
     ContractAssert(tokenId, ERR_NOTOKENID);
     ContractAssert(target, ERR_NOTARGET);
@@ -65,8 +80,12 @@ export const OwnerInputCodec = io.type({
 });
 export type OwnerInput = io.TypeOf<typeof OwnerInputCodec>;
 
-export function owner(state: State, caller: string, input: OwnerInput): ReadonlyResult {
-    const { tokenId } = input;
+export function owner(
+    state: State,
+    caller: string,
+    input: OwnerInput,
+): ReadonlyResult<{ owners: string[] }> {
+    const { tokenId } = checkInput(OwnerInputCodec, input);
 
     ContractAssert(tokenId, ERR_NOTOKENID);
     const owners = ownersOf(state, tokenId);

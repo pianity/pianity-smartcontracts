@@ -16,16 +16,14 @@ export const SettingsInputCodec = io.intersection([
 export type SettingsInput = io.TypeOf<typeof SettingsInputCodec>;
 
 export function settings(state: State, caller: string, input: SettingsInput): WriteResult {
-    checkInput(SettingsInputCodec, input);
-
-    const { settings: untrustedSettings } = input;
+    const { settings: untrustedSettings } = checkInput(SettingsInputCodec, input);
     const { contractSuperOwners, contractOwners } = state.settings;
 
-    ContractAssert(untrustedSettings, "No settings specified");
+    ContractAssert(untrustedSettings, "settings: No settings specified");
 
     ContractAssert(
         contractSuperOwners.includes(caller) || contractOwners.includes(caller),
-        "Caller is not authorized to edit contract settings",
+        "settings: Caller is not authorized to edit contract settings",
     );
 
     ContractAssert(
@@ -34,7 +32,7 @@ export function settings(state: State, caller: string, input: SettingsInput): Wr
                 contractOwners.includes(caller) &&
                 (untrustedSettings.contractSuperOwners || untrustedSettings.contractOwners)
             ),
-        "Caller is not Super Owner",
+        "settings: Caller is not Super Owner",
     );
 
     // TODO: is io-ts able to replace this 100%?
@@ -42,7 +40,7 @@ export function settings(state: State, caller: string, input: SettingsInput): Wr
 
     ContractAssert(
         !untrustedSettings.contractSuperOwners || untrustedSettings.contractSuperOwners.length > 0,
-        "Can't delete all the Super Owners",
+        "settings: Can't delete all the Super Owners",
     );
 
     state.settings = { ...state.settings, ...untrustedSettings };

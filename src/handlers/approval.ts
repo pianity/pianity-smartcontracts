@@ -12,20 +12,12 @@ export const IsApprovedForAllInputCodec = io.type({
 });
 export type IsApprovedForAllInput = io.TypeOf<typeof IsApprovedForAllInputCodec>;
 
-export const SetApprovalForAllInputCodec = io.type({
-    function: io.literal("setApprovalForAll"),
-    target: io.string,
-    approved: io.boolean,
-});
-export type SetApprovalForAllInput = io.TypeOf<typeof SetApprovalForAllInputCodec>;
-
 export function isApprovedForAll(
     state: State,
     caller: string,
     input: IsApprovedForAllInput,
 ): ReadonlyResult<{ approved: boolean }> {
-    checkInput(IsApprovedForAllInputCodec, input);
-    const { target, owner } = input;
+    const { target, owner } = checkInput(IsApprovedForAllInputCodec, input);
 
     ContractAssert(owner, "No owner specified");
     ContractAssert(target, ERR_NOTARGET);
@@ -34,13 +26,19 @@ export function isApprovedForAll(
     return { result: { approved } };
 }
 
+export const SetApprovalForAllInputCodec = io.type({
+    function: io.literal("setApprovalForAll"),
+    target: io.string,
+    approved: io.boolean,
+});
+export type SetApprovalForAllInput = io.TypeOf<typeof SetApprovalForAllInputCodec>;
+
 export function setApprovalForAll(
     state: State,
     caller: string,
     input: SetApprovalForAllInput,
 ): WriteResult {
-    checkInput(SetApprovalForAllInputCodec, input);
-    const { approved, target } = input;
+    const { approved, target } = checkInput(SetApprovalForAllInputCodec, input);
 
     ContractAssert(target, ERR_NOTARGET);
     ContractAssert(typeof approved !== "undefined", "No approved parameter specified");

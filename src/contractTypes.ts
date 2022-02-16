@@ -45,9 +45,9 @@ export type State = {
     invocations: string[];
 };
 
-export type ReadonlyResult<T = unknown> = { result: T; state?: never };
+export type ReadonlyResult<T> = { result: T; state?: never };
 export type WriteResult = { state: State; result?: never };
-export type SmartcontractResult = ReadonlyResult | WriteResult;
+export type SmartcontractResult = ReadonlyResult<unknown> | WriteResult;
 
 export type Action = {
     input: Input;
