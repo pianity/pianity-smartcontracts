@@ -1,8 +1,7 @@
 {
     "name": "pianity-smartcontracts",
     "version": "1.0.0",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "types": "dist/src/index.d.ts",
     "license": "MIT",
     "author": "Eyal Chojnowski <eyal@pianity.com>",
     "engines": {

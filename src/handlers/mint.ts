@@ -9,9 +9,12 @@ import { checkInput } from "@/utils";
 export const MintInputCodec = io.intersection([
     io.type({
         function: io.literal("mint"),
-        royalties: io.record(io.string, io.number),
+        primaryRate: io.number,
+        secondaryRate: io.number,
+        royaltyRate: io.number,
     }),
     io.partial({
+        royalties: io.record(io.string, io.number),
         qty: io.string,
         no: io.number,
     }),
@@ -19,8 +22,10 @@ export const MintInputCodec = io.intersection([
 export type MintInput = io.TypeOf<typeof MintInputCodec>;
 
 export function mint(state: State, caller: string, input: MintInput): WriteResult {
-    checkInput(MintInputCodec, input);
-    const { royalties, qty, no } = input;
+    const { royalties, primaryRate, secondaryRate, royaltyRate, qty, no } = checkInput(
+        MintInputCodec,
+        input,
+    );
     const { contractOwners } = state.settings;
 
     const tokenId = SmartWeave.transaction.id;
@@ -29,18 +34,6 @@ export function mint(state: State, caller: string, input: MintInput): WriteResul
     ContractAssert(tokenId, ERR_NOTOKENID);
     ContractAssert((qty && !no) || (!qty && no), "qty and no can't be set simultaneously");
 
-    mintToken(state, tokenId, royalties, qty, no);
-
-    return { state };
-}
-
-function mintToken(
-    state: State,
-    tokenId: string,
-    royalties?: Record<string, number>,
-    qty?: string,
-    no?: number,
-) {
     ContractAssert(!(tokenId in state.tokens), `tokenId already exists: "${tokenId}".`);
 
     if (royalties) {
@@ -51,6 +44,9 @@ function mintToken(
         ticker: `${PST}${state.nonce}`,
         royalties,
         balances: {},
+        primaryRate,
+        secondaryRate,
+        royaltyRate,
     };
     state.nonce++;
     state.tokens[tokenId] = token;
@@ -64,4 +60,6 @@ function mintToken(
         // is a token
         addTokenTo(state, "", tokenId, new BigNumber(qty));
     }
+
+    return { state };
 }

@@ -246,34 +246,32 @@ function pay(state: State, token: Token, from: string, price: BigNumber) {
             state,
             state.settings.communityChest,
             PST,
-            price.multipliedBy(state.settings.primaryRate),
+            price.multipliedBy(token.primaryRate),
         );
         for (const [target, split] of Object.entries(token.royalties)) {
             addTokenTo(
                 state,
                 target,
                 PST,
-                price.multipliedBy((1 - state.settings.primaryRate) * split).dividedBy(UNIT),
+                price.multipliedBy((1 - token.primaryRate) * split).dividedBy(UNIT),
             );
         }
     } else {
         // secondary sales
-        const netValue = price.multipliedBy(
-            1 - state.settings.secondaryRate - state.settings.royaltyRate,
-        );
+        const netValue = price.multipliedBy(1 - token.secondaryRate - token.royaltyRate);
         addTokenTo(state, from, PST, netValue);
         addTokenTo(
             state,
             state.settings.communityChest,
             PST,
-            price.multipliedBy(state.settings.secondaryRate),
+            price.multipliedBy(token.secondaryRate),
         );
         for (const [target, split] of Object.entries(token.royalties)) {
             addTokenTo(
                 state,
                 target,
                 PST,
-                price.multipliedBy(state.settings.royaltyRate * split).dividedBy(UNIT),
+                price.multipliedBy(token.royaltyRate * split).dividedBy(UNIT),
             );
         }
     }

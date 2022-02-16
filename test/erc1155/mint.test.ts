@@ -15,6 +15,9 @@ test("mint an NFT", async (t) => {
         function: "mint",
         no: 100,
         royalties: { [user1]: 123, [user2]: UNIT - 123 },
+        primaryRate: 0.15,
+        secondaryRate: 0.1,
+        royaltyRate: 0.1,
     });
 
     t.pass();
@@ -38,6 +41,9 @@ test("mint nft with 4 owners", async (t) => {
             [user3]: UNIT / 4,
             [user4]: UNIT / 4,
         },
+        primaryRate: 0.15,
+        secondaryRate: 0.1,
+        royaltyRate: 0.1,
     });
 
     t.pass();

@@ -5,6 +5,9 @@ export type Token = {
     owners?: string[]; // Ordered list of NFTs' owners
     balances: Record<string, string>; // owner -> balance
     royalties?: Record<string, number>;
+    primaryRate: number;
+    secondaryRate: number;
+    royaltyRate: number;
 };
 
 /**
@@ -14,10 +17,6 @@ export type Token = {
  * to make the input codec, which requires a partial version of these props
  */
 export const SettingsKnownProps = {
-    primaryRate: io.number,
-    secondaryRate: io.number,
-    royaltyRate: io.number,
-
     allowFreeTransfer: io.boolean,
     paused: io.boolean,
 
