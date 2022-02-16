@@ -1,22 +1,26 @@
+import * as io from "io-ts";
+
 import { ERR_NOTARGET } from "@/consts";
 import { handle } from "@/erc1155";
 import { Action, SmartcontractResult, State } from "@/contractTypes";
 import { ContractAssert, SmartWeave } from "@/externals";
 import { Input } from "@/handlers";
+import { checkInput } from "@/utils";
 
-export type ForeignInvokeInput = {
-    function: "foreignInvoke";
-    target: string;
-    invocationId: string;
-};
+export const ForeignInvokeInputCodec = io.type({
+    function: io.literal("foreignInvoke"),
+    target: io.string,
+    invocationId: io.string,
+});
+export type ForeignInvokeInput = io.TypeOf<typeof ForeignInvokeInputCodec>;
 
 export async function foreignInvoke(
     state: State,
     caller: string,
     input: ForeignInvokeInput,
 ): Promise<SmartcontractResult> {
+    const { target, invocationId } = checkInput(ForeignInvokeInputCodec, input);
     const { contractOwners } = state.settings;
-    const { target, invocationId } = input;
 
     ContractAssert(contractOwners.includes(caller), "Caller is not authorized to foreignInvoke");
     ContractAssert(target, ERR_NOTARGET);

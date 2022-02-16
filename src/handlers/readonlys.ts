@@ -1,13 +1,18 @@
+import * as io from "io-ts";
+
 import { ERR_404TOKENID, ERR_NOTARGET, ERR_NOTOKENID, PST } from "@/consts";
 import { ReadonlyResult, State } from "@/contractTypes";
 import { BigNumber, ContractAssert } from "@/externals";
 
-// TODO: impl io-ts here
-
-export type TickerInput = {
-    function: "ticker";
-    tokenId?: string;
-};
+export const TickerInputCodec = io.intersection([
+    io.type({
+        function: io.literal("ticker"),
+    }),
+    io.partial({
+        tokenId: io.string,
+    }),
+]);
+export type TickerInput = io.TypeOf<typeof TickerInputCodec>;
 
 export function ticker(state: State, caller: string, input: TickerInput): ReadonlyResult {
     const tokenId = input.tokenId || PST;
@@ -16,11 +21,16 @@ export function ticker(state: State, caller: string, input: TickerInput): Readon
     return { result: { ticker } };
 }
 
-export type BalanceInput = {
-    function: "balance";
-    target?: string;
-    tokenId?: string;
-};
+export const BalanceInputCodec = io.intersection([
+    io.type({
+        function: io.literal("balance"),
+    }),
+    io.partial({
+        target: io.string,
+        tokenId: io.string,
+    }),
+]);
+export type BalanceInput = io.TypeOf<typeof BalanceInputCodec>;
 
 export function balance(state: State, caller: string, input: BalanceInput): ReadonlyResult {
     const target = input.target || caller;
@@ -31,11 +41,12 @@ export function balance(state: State, caller: string, input: BalanceInput): Read
     return { result: { target, balance } };
 }
 
-export type RoyaltiesInput = {
-    function: "royalties";
-    target: string;
-    tokenId: string;
-};
+export const RoyaltiesInputCodec = io.type({
+    function: io.literal("royalties"),
+    target: io.string,
+    tokenId: io.string,
+});
+export type RoyaltiesInput = io.TypeOf<typeof RoyaltiesInputCodec>;
 
 export function royalties(state: State, caller: string, input: RoyaltiesInput): ReadonlyResult {
     const { target, tokenId } = input;
@@ -48,10 +59,11 @@ export function royalties(state: State, caller: string, input: RoyaltiesInput): 
     return { result: { royalties } };
 }
 
-export type OwnerInput = {
-    function: "owner" | "owners";
-    tokenId: string;
-};
+export const OwnerInputCodec = io.type({
+    function: io.union([io.literal("owner"), io.literal("owners")]),
+    tokenId: io.string,
+});
+export type OwnerInput = io.TypeOf<typeof OwnerInputCodec>;
 
 export function owner(state: State, caller: string, input: OwnerInput): ReadonlyResult {
     const { tokenId } = input;

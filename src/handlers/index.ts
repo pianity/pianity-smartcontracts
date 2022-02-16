@@ -5,6 +5,13 @@ import { MintInput } from "@/handlers/mint";
 import { SettingsInput } from "@/handlers/settings";
 import { ForeignInvokeInput } from "@/handlers/foreignInvoke";
 
+export * from "@/handlers/readonlys";
+export * from "@/handlers/approval";
+export * from "@/handlers/transfer";
+export * from "@/handlers/mint";
+export * from "@/handlers/settings";
+export * from "@/handlers/foreignInvoke";
+
 export type Input =
     | { function: "name" }
     | TickerInput
@@ -19,31 +26,3 @@ export type Input =
     | MintInput
     | SettingsInput
     | ForeignInvokeInput;
-
-export {
-    BalanceInput,
-    balance,
-    TickerInput,
-    ticker,
-    OwnerInput,
-    owner,
-    royalties,
-    RoyaltiesInput,
-} from "@/handlers/readonlys";
-export {
-    isApprovedForAll,
-    IsApprovedForAllInput,
-    setApprovalForAll,
-    SetApprovalForAllInput,
-} from "@/handlers/approval";
-export {
-    transfer,
-    transferBatch,
-    transferRoyalties,
-    TransferRoyaltiesInput,
-    TransferBatchInput,
-    TransferInput,
-} from "@/handlers/transfer";
-export { mint, MintInput } from "@/handlers/mint";
-export { settings, SettingsInput } from "@/handlers/settings";
-export { foreignInvoke, ForeignInvokeInput } from "@/handlers/foreignInvoke";

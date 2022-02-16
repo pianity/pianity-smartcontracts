@@ -7,7 +7,7 @@ import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
 import { checkInput } from "@/utils";
 import { balanceOf } from "@/handlers/readonlys";
 
-const TransferInputCodec = io.intersection([
+export const TransferInputCodec = io.intersection([
     io.type({
         function: io.literal("transfer"),
         target: io.string,
@@ -65,14 +65,13 @@ export function transfer(state: State, caller: string, input: TransferInput): Wr
         pay(state, token, from, new BigNumber(price || 0));
     }
 
-    console.log("QTY:", qty);
     removeTokenFrom(state, from, tokenId, new BigNumber(qty || 1), no);
     addTokenTo(state, target, tokenId, new BigNumber(qty || 1), no);
 
     return { state };
 }
 
-const TransferBatchInputCodec = io.intersection([
+export const TransferBatchInputCodec = io.intersection([
     io.type({
         function: io.literal("transferBatch"),
         targets: io.array(io.string),

@@ -1,5 +1,7 @@
 import * as io from "io-ts";
 
+import { Input } from "@/handlers";
+
 export type Token = {
     ticker: string;
     owners?: string[]; // Ordered list of NFTs' owners
@@ -47,7 +49,7 @@ export type ReadonlyResult<T = unknown> = { result: T; state?: never };
 export type WriteResult = { state: State; result?: never };
 export type SmartcontractResult = ReadonlyResult | WriteResult;
 
-export type Action<T> = {
-    input: T;
+export type Action = {
+    input: Input;
     caller: string;
 };

@@ -1,4 +1,36 @@
-import * as contractTypes from "@/contractTypes";
-import * as inputTypes from "@/handlers";
+export * from "@/contractTypes";
 
-export { contractTypes, inputTypes };
+export { Input } from "@/handlers";
+
+export {
+    BalanceInputCodec,
+    BalanceInput,
+    TickerInputCodec,
+    TickerInput,
+    OwnerInputCodec,
+    OwnerInput,
+    RoyaltiesInputCodec,
+    RoyaltiesInput,
+} from "@/handlers/readonlys";
+
+export {
+    IsApprovedForAllInputCodec,
+    IsApprovedForAllInput,
+    SetApprovalForAllInputCodec,
+    SetApprovalForAllInput,
+} from "@/handlers/approval";
+
+export {
+    TransferRoyaltiesInputCodec,
+    TransferRoyaltiesInput,
+    TransferBatchInputCodec,
+    TransferBatchInput,
+    TransferInput,
+    TransferInputCodec,
+} from "@/handlers/transfer";
+
+export { MintInput, MintInputCodec } from "@/handlers/mint";
+
+export { SettingsInput, SettingsInputCodec } from "@/handlers/settings";
+
+export { ForeignInvokeInput, ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";

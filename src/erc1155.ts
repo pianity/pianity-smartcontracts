@@ -3,10 +3,7 @@ import { exhaustive } from "@/utils";
 import { Action, SmartcontractResult, State } from "@/contractTypes";
 import * as handlers from "@/handlers";
 
-export async function handle(
-    state: State,
-    action: Action<handlers.Input>,
-): Promise<SmartcontractResult> {
+export async function handle(state: State, action: Action): Promise<SmartcontractResult> {
     const { paused, contractSuperOwners } = state.settings;
     const { input, caller } = action;
 
