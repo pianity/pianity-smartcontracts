@@ -10,6 +10,7 @@
     "scripts": {
         "build:contract": "ts-node scripts/build.ts",
         "build:declarations": "tsc",
+        "typecheck": "tsc --emitDeclarationOnly false --noEmit",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
         "test": "ava",

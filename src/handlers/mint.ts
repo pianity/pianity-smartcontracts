@@ -6,9 +6,8 @@ import { ContractAssert, SmartWeave, BigNumber } from "@/externals";
 import { checkRoyalties, addTokenTo } from "@/handlers/transfer";
 import { checkInput } from "@/utils";
 
-export const MintInputCodec = io.intersection([
+export const SingleMintCodec = io.intersection([
     io.type({
-        function: io.literal("mint"),
         primaryRate: io.number,
         secondaryRate: io.number,
         royaltyRate: io.number,
@@ -17,24 +16,33 @@ export const MintInputCodec = io.intersection([
         royalties: io.record(io.string, io.number),
         qty: io.string,
         no: io.number,
+        suffix: io.string,
     }),
+]);
+
+export const MintInputCodec = io.intersection([
+    io.type({ function: io.literal("mint") }),
+    SingleMintCodec,
 ]);
 export type MintInput = io.TypeOf<typeof MintInputCodec>;
 
 export function mint(state: State, caller: string, input: MintInput): WriteResult {
-    const { royalties, primaryRate, secondaryRate, royaltyRate, qty, no } = checkInput(
+    const { royalties, primaryRate, secondaryRate, royaltyRate, qty, no, suffix } = checkInput(
         MintInputCodec,
         input,
     );
     const { contractOwners } = state.settings;
 
-    const tokenId = SmartWeave.transaction.id;
+    ContractAssert(contractOwners.includes(caller), "mint: `caller` is not authorized to mint");
+    ContractAssert(
+        (qty && !no) || (!qty && no),
+        "mint: Either `qty` or `no` must be set (not simultaneously)",
+    );
+    ContractAssert(!suffix || !qty, "mint: `suffix` and `qty` cannot be set simuntaneously");
 
-    ContractAssert(contractOwners.includes(caller), "Caller is not authorized to mint");
-    ContractAssert(tokenId, ERR_NOTOKENID);
-    ContractAssert((qty && !no) || (!qty && no), "qty and no can't be set simultaneously");
+    const tokenId = getTokenId(suffix);
 
-    ContractAssert(!(tokenId in state.tokens), `tokenId already exists: "${tokenId}".`);
+    ContractAssert(!(tokenId in state.tokens), `mint: \`tokenId\` already exists: "${tokenId}".`);
 
     if (royalties) {
         checkRoyalties(royalties);
@@ -64,6 +72,27 @@ export function mint(state: State, caller: string, input: MintInput): WriteResul
     return { state };
 }
 
+export const MintBatchInputCodec = io.type({
+    function: io.literal("mintBatch"),
+    mints: io.array(
+        io.intersection([
+            SingleMintCodec,
+            io.type({ suffix: SingleMintCodec.types[1].props.suffix }),
+        ]),
+    ),
+});
+export type MintBatchInput = io.TypeOf<typeof MintBatchInputCodec>;
+
+export function mintBatch(state: State, caller: string, input: MintBatchInput): WriteResult {
+    const { mints } = checkInput(MintBatchInputCodec, input);
+
+    for (const mintInput of mints) {
+        mint(state, caller, { function: "mint", ...mintInput });
+    }
+
+    return { state };
+}
+
 export const BurnInputCodec = io.type({
     function: io.literal("burn"),
     tokenId: io.string,
@@ -80,4 +109,18 @@ export function burn(state: State, caller: string, input: BurnInput): WriteResul
     delete state.tokens[tokenId];
 
     return { state };
+}
+
+function getTokenId(suffix?: string): string {
+    let tokenId = SmartWeave.transaction.id;
+
+    ContractAssert(tokenId, "mint: Couldn't get the transaction id via SmartWeave global");
+
+    const effectiveSuffix = suffix?.trim();
+
+    if (effectiveSuffix && effectiveSuffix.length > 0) {
+        tokenId = `${suffix}${tokenId}`;
+    }
+
+    return tokenId;
 }

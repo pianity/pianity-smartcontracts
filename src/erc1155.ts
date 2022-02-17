@@ -55,6 +55,9 @@ export async function handle(state: State, action: Action): Promise<Smartcontrac
         case "mint":
             return handlers.mint(state, caller, input);
 
+        case "mintBatch":
+            return handlers.mintBatch(state, caller, input);
+
         case "settings":
             return handlers.settings(state, caller, input);
 
