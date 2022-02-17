@@ -8,12 +8,13 @@
         "node": ">=16.13.0"
     },
     "scripts": {
-        "build": "ts-node scripts/build.ts",
+        "build:contract": "ts-node scripts/build.ts",
+        "build:declarations": "tsc",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
         "test": "ava",
         "postinstall": "patch-package",
-        "prepare": "ts-patch install -s ; tsc"
+        "prepare": "ts-patch install -s"
     },
     "dependencies": {
         "arweave": "^1.10.23",

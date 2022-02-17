@@ -1,0 +1,55 @@
+import * as io from "io-ts";
+import { Input } from "./handlers";
+export declare type Token = {
+    ticker: string;
+    owners?: string[];
+    balances: Record<string, string>;
+    royalties?: Record<string, number>;
+    primaryRate: number;
+    secondaryRate: number;
+    royaltyRate: number;
+};
+/**
+ * Props present in the initial state settings.
+ *
+ * This is separated from the SettingsCodec definition because it's also used in {@link settings}
+ * to make the input codec, which requires a partial version of these props
+ */
+export declare const SettingsKnownProps: {
+    allowFreeTransfer: io.BooleanC;
+    paused: io.BooleanC;
+    communityChest: io.StringC;
+    contractOwners: io.ArrayC<io.StringC>;
+    contractSuperOwners: io.ArrayC<io.StringC>;
+    foreignContracts: io.ArrayC<io.StringC>;
+};
+export declare const SettingsCodec: io.IntersectionC<[io.TypeC<{
+    allowFreeTransfer: io.BooleanC;
+    paused: io.BooleanC;
+    communityChest: io.StringC;
+    contractOwners: io.ArrayC<io.StringC>;
+    contractSuperOwners: io.ArrayC<io.StringC>;
+    foreignContracts: io.ArrayC<io.StringC>;
+}>, io.RecordC<io.StringC, io.UnknownC>]>;
+export declare type Settings = io.TypeOf<typeof SettingsCodec>;
+export declare type State = {
+    name: string;
+    nonce: number;
+    settings: Settings;
+    tokens: Record<string, Token>;
+    operatorApprovals: Record<string, Record<string, boolean>>;
+    invocations: string[];
+};
+export declare type ReadonlyResult<T> = {
+    result: T;
+    state?: never;
+};
+export declare type WriteResult = {
+    state: State;
+    result?: never;
+};
+export declare type SmartcontractResult = ReadonlyResult<unknown> | WriteResult;
+export declare type Action = {
+    input: Input;
+    caller: string;
+};
