@@ -1,0 +1,13 @@
+diff --git a/node_modules/ava/lib/code-excerpt.js b/node_modules/ava/lib/code-excerpt.js
+index ca9ab05..047495a 100644
+--- a/node_modules/ava/lib/code-excerpt.js
++++ b/node_modules/ava/lib/code-excerpt.js
+@@ -43,7 +43,7 @@ export default function exceptCode(source, options = {}) {
+ 			const coloredLineNumber = isErrorSource ? lineNumber : chalk.grey(lineNumber);
+ 			const result = ` ${coloredLineNumber} ${item.value.padEnd(extendedWidth)}`;
+ 
+-			return isErrorSource ? chalk.bgRed(result) : result;
++			return isErrorSource ? chalk.underline(chalk.red(result)) : result;
+ 		})
+ 		.join('\n');
+ }

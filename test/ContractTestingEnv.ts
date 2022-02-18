@@ -63,15 +63,6 @@ export default class ContractTestingEnv<STATE, INPUT> {
 
     currentHeight: number;
 
-    // TODO: Is this useful?
-    // constructor() {
-    //     // this.pushState = this.pushState.bind(this);
-    //     // this.currentState = this.currentState.bind(this);
-    //     // this.clearContracts = this.clearContracts.bind(this);
-    //     // this.readState = this.readState.bind(this);
-    //     // this.history = this.history.bind(this);
-    // }
-
     constructor(
         srcPath: string, // from the project's root.
         initialState: STATE,

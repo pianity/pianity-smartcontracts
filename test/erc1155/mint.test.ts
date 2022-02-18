@@ -1,20 +1,18 @@
 import { ContractError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
-import { generateAddress } from "?/utils";
+import * as m from "?/erc1155/mocks";
+
 import { UNIT } from "@/consts";
 import { TransferInput } from "@/handlers";
 
-test("mint an NFT", async (t) => {
-    const { apiAddress } = t.context;
-    const contract = t.context.createContract();
-
-    const user1 = await generateAddress();
-    const user2 = await generateAddress();
+test("mint an nft", async (t) => {
+    const { apiAddress, createContract } = t.context;
+    const contract = createContract();
 
     await contract.interact(apiAddress, {
         function: "mint",
         no: 100,
-        royalties: { [user1]: 123, [user2]: UNIT - 123 },
+        royalties: { [m.USER1]: 123, [m.USER2]: UNIT - 123 },
         primaryRate: 0.15,
         secondaryRate: 0.1,
         royaltyRate: 0.1,
@@ -24,26 +22,33 @@ test("mint an NFT", async (t) => {
 });
 
 test("mint nft with 4 owners", async (t) => {
-    const { apiAddress } = t.context;
-    const contract = t.context.createContract();
-
-    const user1 = await generateAddress();
-    const user2 = await generateAddress();
-    const user3 = await generateAddress();
-    const user4 = await generateAddress();
+    const { apiAddress, createContract } = t.context;
+    const contract = createContract();
 
     await contract.interact(apiAddress, {
         function: "mint",
         no: 100,
         royalties: {
-            [user1]: UNIT / 4,
-            [user2]: UNIT / 4,
-            [user3]: UNIT / 4,
-            [user4]: UNIT / 4,
+            [m.USER1]: UNIT / 4,
+            [m.USER2]: UNIT / 4,
+            [m.USER3]: UNIT / 4,
+            [m.USER4]: UNIT / 4,
         },
         primaryRate: 0.15,
         secondaryRate: 0.1,
         royaltyRate: 0.1,
+    });
+
+    t.pass();
+});
+
+test("mintBatch", async (t) => {
+    const { apiAddress, createContract } = t.context;
+    const contract = createContract();
+
+    await contract.interact(apiAddress, {
+        function: "mintBatch",
+        mints: [m.UNIQUE_MINT, m.EPIC_MINT],
     });
 
     t.pass();

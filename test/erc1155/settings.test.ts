@@ -1,13 +1,14 @@
 import { ContractError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
+
 import { Input } from "@/handlers";
 
-test("setting a field with an invalid type should throw", async (t) => {
+test("throws: setting a field with an invalid type", async (t) => {
+    const { apiAddress, createContract } = t.context;
+    const contract = createContract();
+
     await t.throwsAsync(
         async () => {
-            const { apiAddress, createContract } = t.context;
-            const contract = createContract();
-
             await contract.interact(apiAddress, {
                 function: "settings",
                 settings: {
@@ -19,7 +20,7 @@ test("setting a field with an invalid type should throw", async (t) => {
     );
 });
 
-test("setting a field with a valid type should change the field", async (t) => {
+test("changes the field: setting a field with a valid type", async (t) => {
     const { apiAddress, createContract } = t.context;
     const contract = createContract();
 
@@ -30,12 +31,12 @@ test("setting a field with a valid type should change the field", async (t) => {
         settings: {
             allowFreeTransfer: newFieldValue,
         },
-    } as unknown as Input);
+    });
 
     t.assert(contract.readState().settings.allowFreeTransfer === newFieldValue);
 });
 
-test("setting a new field should work", async (t) => {
+test("set a new field", async (t) => {
     const { apiAddress, createContract } = t.context;
     const contract = createContract();
 

@@ -3,7 +3,6 @@ import anyTest, { TestFn } from "ava";
 import Arweave from "arweave";
 
 import ContractTestingEnv from "?/ContractTestingEnv";
-import { generateAddress } from "?/utils";
 import { State } from "@/contractTypes";
 import { Input } from "@/handlers";
 
@@ -25,14 +24,14 @@ const test = anyTest as TestFn<Context>;
 
 export default test;
 
-test.before(async (t) => {
+test.before((t) => {
     const contractSrcPath = "build/erc1155.js";
 
     const arweave = Arweave.init({});
-    const caller = await generateAddress();
-    const apiAddress = await generateAddress();
-    const superOwnerAddress = await generateAddress();
-    const communityChestAddress = await generateAddress();
+    const caller = "50duQsQV5iMo6JNNJ4oVgVPmT2IPosO55pB7edWphB8";
+    const apiAddress = "w2YJFs6-lNr3WhL--wTKzYuzfJzAH09CUEc3BzPuLbc";
+    const superOwnerAddress = "6EJsy9WLXRMRRBOds-psdVm9o0O0f_idx3g0cEUGkz8";
+    const communityChestAddress = "rvcqUue4SjrmTSrICnChjmyWgsQvYmL5FZKT0XNtWwM";
 
     const initialState: State = {
         name: "Pianity",
@@ -76,6 +75,11 @@ test.before(async (t) => {
         createContract,
     };
 });
+
+// test.afterEach.always((t) => {
+//     t.context.contract = t.context.createContract();
+//     console.log("NEW CONTRACT: ", t.context.contract.id);
+// });
 
 // test.beforeEach((t) => {
 //     const { srcPath, initialState } = t.context.contract;

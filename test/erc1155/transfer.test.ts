@@ -2,37 +2,34 @@ import BigNumber from "bignumber.js";
 
 import { ContractError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
-import { generateAddress } from "?/utils";
+import * as m from "?/erc1155/mocks";
+
 import { TransferInput } from "@/handlers";
 
 test("transfer 1 pty", async (t) => {
-    const { apiAddress } = t.context;
-    const contract = t.context.createContract();
-
-    const randomUser = await generateAddress();
+    const { apiAddress, createContract } = t.context;
+    const contract = createContract();
 
     await contract.interact(apiAddress, {
         function: "transfer",
-        target: randomUser,
+        target: m.USER1,
         qty: "1",
     });
 
-    const balance = contract.readState().tokens.PTY.balances[randomUser];
+    const balance = contract.readState().tokens.PTY.balances[m.USER1];
 
     t.assert(balance === "1");
 });
 
 test("wrongly typed input field should throw", async (t) => {
+    const { apiAddress, createContract } = t.context;
+    const contract = createContract();
+
     await t.throwsAsync(
         async () => {
-            const { apiAddress } = t.context;
-            const contract = t.context.createContract();
-
-            const randomUser = await generateAddress();
-
             await contract.interact(apiAddress, {
                 function: "transfer",
-                target: randomUser,
+                target: m.USER1,
                 qty: "1",
                 no: "wrong type",
             } as unknown as TransferInput);
