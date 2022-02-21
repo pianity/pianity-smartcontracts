@@ -1,9 +1,30 @@
-import { BalanceInput, OwnerInput, RoyaltiesInput, TickerInput } from "@/handlers/readonlys";
-import { IsApprovedForAllInput, SetApprovalForAllInput } from "@/handlers/approval";
-import { TransferBatchInput, TransferInput, TransferRoyaltiesInput } from "@/handlers/transfer";
-import { BurnInput, MintBatchInput, MintInput } from "@/handlers/mint";
-import { SettingsInput } from "@/handlers/settings";
-import { ForeignInvokeInput } from "@/handlers/foreignInvoke";
+import * as io from "io-ts";
+
+import {
+    BalanceInputCodec,
+    BalanceResult,
+    NameInputCodec,
+    NameResult,
+    OwnerInputCodec,
+    OwnerResult,
+    RoyaltiesInputCodec,
+    RoyaltiesResult,
+    TickerInputCodec,
+    TickerResult,
+} from "@/handlers/readonlys";
+import {
+    IsApprovedForAllInputCodec,
+    IsApprovedForallResult,
+    SetApprovalForAllInputCodec,
+} from "@/handlers/approval";
+import {
+    TransferBatchInputCodec,
+    TransferInputCodec,
+    TransferRoyaltiesInputCodec,
+} from "@/handlers/transfer";
+import { BurnInputCodec, MintBatchInputCodec, MintInputCodec } from "@/handlers/mint";
+import { SettingsInputCodec } from "@/handlers/settings";
+import { ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";
 
 export * from "@/handlers/readonlys";
 export * from "@/handlers/approval";
@@ -12,19 +33,29 @@ export * from "@/handlers/mint";
 export * from "@/handlers/settings";
 export * from "@/handlers/foreignInvoke";
 
-export type Input =
-    | { function: "name" }
-    | TickerInput
-    | BalanceInput
-    | RoyaltiesInput
-    | OwnerInput
-    | IsApprovedForAllInput
-    | SetApprovalForAllInput
-    | TransferInput
-    | TransferBatchInput
-    | TransferRoyaltiesInput
-    | MintInput
-    | MintBatchInput
-    | BurnInput
-    | SettingsInput
-    | ForeignInvokeInput;
+export const InputCodec = io.union([
+    NameInputCodec,
+    TickerInputCodec,
+    BalanceInputCodec,
+    RoyaltiesInputCodec,
+    OwnerInputCodec,
+    IsApprovedForAllInputCodec,
+    SetApprovalForAllInputCodec,
+    TransferInputCodec,
+    TransferBatchInputCodec,
+    TransferRoyaltiesInputCodec,
+    MintInputCodec,
+    MintBatchInputCodec,
+    BurnInputCodec,
+    SettingsInputCodec,
+    ForeignInvokeInputCodec,
+]);
+export type Input = io.TypeOf<typeof InputCodec>;
+
+export type ReadonlysResult =
+    | NameResult
+    | TickerResult
+    | BalanceResult
+    | RoyaltiesResult
+    | OwnerResult
+    | IsApprovedForallResult;

@@ -9,7 +9,7 @@ export async function handle(state: State, action: Action): Promise<Smartcontrac
 
     switch (input.function) {
         case "name":
-            return { result: { name: "Pianity" } };
+            return handlers.name(state, caller, input);
 
         case "ticker":
             return handlers.ticker(state, caller, input);

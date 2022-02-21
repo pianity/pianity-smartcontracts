@@ -1,7 +1,7 @@
 import * as io from "io-ts";
 
 import { ERR_NOTARGET } from "@/consts";
-import { ReadonlyResult, State, WriteResult } from "@/contractTypes";
+import { ReadResult, State, WriteResult } from "@/contractTypes";
 import { ContractAssert } from "@/externals";
 import { checkInput } from "@/utils";
 
@@ -11,12 +11,13 @@ export const IsApprovedForAllInputCodec = io.type({
     owner: io.string,
 });
 export type IsApprovedForAllInput = io.TypeOf<typeof IsApprovedForAllInputCodec>;
+export type IsApprovedForallResult = { approved: boolean };
 
 export function isApprovedForAll(
     state: State,
     caller: string,
     input: IsApprovedForAllInput,
-): ReadonlyResult<{ approved: boolean }> {
+): ReadResult<IsApprovedForallResult> {
     const { target, owner } = checkInput(IsApprovedForAllInputCodec, input);
 
     ContractAssert(owner, "No owner specified");

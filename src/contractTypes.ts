@@ -1,6 +1,7 @@
 import * as io from "io-ts";
 
-import { Input } from "@/handlers";
+import { Input, ReadonlysResult } from "@/handlers";
+import { TransactionBatchResult } from "@/handlers/transactionBatch";
 
 export type Token = {
     ticker: string;
@@ -45,9 +46,12 @@ export type State = {
     invocations: string[];
 };
 
-export type ReadonlyResult<T> = { result: T; state?: never };
+export type ReadResult<T> = { result: T; state?: never };
 export type WriteResult = { state: State; result?: never };
-export type SmartcontractResult = ReadonlyResult<unknown> | WriteResult;
+export type ReadWriteResult<T> = { state: State; result: T };
+export type SmartcontractResult =
+    | (ReadResult<ReadonlysResult> | WriteResult)
+    | ReadWriteResult<TransactionBatchResult>;
 
 export type Action = {
     input: Input;
