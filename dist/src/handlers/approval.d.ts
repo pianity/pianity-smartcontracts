@@ -1,14 +1,15 @@
 import * as io from "io-ts";
-import { ReadonlyResult, State, WriteResult } from "../contractTypes";
+import { ReadResult, State, WriteResult } from "@/contractTypes";
 export declare const IsApprovedForAllInputCodec: io.TypeC<{
     function: io.LiteralC<"isApprovedForAll">;
     target: io.StringC;
     owner: io.StringC;
 }>;
 export declare type IsApprovedForAllInput = io.TypeOf<typeof IsApprovedForAllInputCodec>;
-export declare function isApprovedForAll(state: State, caller: string, input: IsApprovedForAllInput): ReadonlyResult<{
+export declare type IsApprovedForallResult = {
     approved: boolean;
-}>;
+};
+export declare function isApprovedForAll(state: State, caller: string, input: IsApprovedForAllInput): ReadResult<IsApprovedForallResult>;
 export declare const SetApprovalForAllInputCodec: io.TypeC<{
     function: io.LiteralC<"setApprovalForAll">;
     target: io.StringC;

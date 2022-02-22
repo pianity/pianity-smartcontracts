@@ -1,5 +1,5 @@
 import * as io from "io-ts";
-import { State, WriteResult } from "../contractTypes";
+import { State, WriteResult } from "@/contractTypes";
 export declare const SingleMintCodec: io.IntersectionC<[io.TypeC<{
     primaryRate: io.NumberC;
     secondaryRate: io.NumberC;

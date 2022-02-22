@@ -1,5 +1,6 @@
 import { ContractHandler } from "smartweave/lib/contract-step";
 import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";
+import { ReadonlysResult } from "@/handlers";
 export declare type ContractExecutionEnv = {
     handler: ContractHandler;
     swGlobal: SmartWeaveGlobal;
@@ -15,7 +16,8 @@ export declare type Contract<STATE> = {
 };
 declare type ContractInteractionResult<T> = {
     type: "ok" | "error" | "exception";
-    result: any;
+    result: ReadonlysResult;
+    txId: string;
     state: T;
 };
 declare enum ContractErrorKind {

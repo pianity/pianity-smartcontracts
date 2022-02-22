@@ -1,8 +1,8 @@
 import { TestFn } from "ava";
 import Arweave from "arweave";
-import ContractTestingEnv from "../ContractTestingEnv";
-import { State } from "../../src/contractTypes";
-import { Input } from "../../src/handlers";
+import ContractTestingEnv from "?/ContractTestingEnv";
+import { State } from "@/contractTypes";
+import { Input } from "@/handlers";
 declare type Context = {
     arweave: Arweave;
     caller: string;

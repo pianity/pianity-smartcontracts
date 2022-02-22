@@ -1,6 +1,6 @@
 import * as io from "io-ts";
-import { State, WriteResult } from "../contractTypes";
-import { BigNumber } from "../externals";
+import { State, WriteResult } from "@/contractTypes";
+import { BigNumber } from "@/externals";
 export declare const TransferInputCodec: io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"transfer">;
     target: io.StringC;

@@ -1,5 +1,5 @@
 import * as io from "io-ts";
-import { SmartcontractResult, State } from "../contractTypes";
+import { SmartcontractResult, State } from "@/contractTypes";
 export declare const ForeignInvokeInputCodec: io.TypeC<{
     function: io.LiteralC<"foreignInvoke">;
     target: io.StringC;

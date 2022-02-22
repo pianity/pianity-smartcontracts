@@ -7,6 +7,7 @@ import { createContractExecutionEnvironment } from "smartweave/lib/contract-load
 import { ContractHandler, execute } from "smartweave/lib/contract-step";
 import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";
 import { InteractionTx } from "smartweave/lib/interaction-tx";
+import { ReadonlysResult } from "@/handlers";
 
 export type ContractExecutionEnv = {
     handler: ContractHandler;
@@ -26,7 +27,8 @@ export type Contract<STATE> = {
 
 type ContractInteractionResult<T> = {
     type: "ok" | "error" | "exception";
-    result: any;
+    result: ReadonlysResult;
+    txId: string;
     state: T;
 };
 
@@ -127,11 +129,12 @@ export default class ContractTestingEnv<STATE, INPUT> {
             const currentState = forcedCurrentState || this.currentState();
 
             const prevActiveTx = this.contract.env.swGlobal._activeTx;
-            this.contract.env.swGlobal._activeTx = ContractTestingEnv.mockActiveTx(
+            const newTx = ContractTestingEnv.mockActiveTx(
                 block || { height: this.currentHeight, timestamp: Date.now() / 1000 },
             );
+            this.contract.env.swGlobal._activeTx = newTx;
 
-            const res: ContractInteractionResult<STATE> = await execute(
+            const res = await execute(
                 this.contract.env.handler,
                 {
                     input,
@@ -148,7 +151,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
             this.contract.env.swGlobal._activeTx = prevActiveTx;
             this.currentHeight += 1;
 
-            return res;
+            return { ...res, txId: newTx.id };
         } catch (e) {
             throw new ContractError(e);
         }

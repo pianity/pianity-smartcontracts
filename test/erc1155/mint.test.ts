@@ -5,14 +5,27 @@ import * as m from "?/erc1155/mocks";
 import { UNIT } from "@/consts";
 import { TransferInput } from "@/handlers";
 
-test("mint an nft", async (t) => {
+function divideShare(count: number): number[] {
+    const shareInt = Math.floor(UNIT / count);
+    const shares = Array(count).fill(shareInt);
+    shares[shares.length - 1] = UNIT - shareInt * (count - 1);
+
+    return shares;
+}
+
+test("mint nft with 5 owners", async (t) => {
     const { apiAddress, createContract } = t.context;
     const contract = createContract();
+
+    const shares = divideShare(2);
 
     await contract.interact(apiAddress, {
         function: "mint",
         no: 100,
-        royalties: { [m.USER1]: 123, [m.USER2]: UNIT - 123 },
+        royalties: {
+            [m.USER1]: shares[0],
+            [m.USER2]: shares[1],
+        },
         primaryRate: 0.15,
         secondaryRate: 0.1,
         royaltyRate: 0.1,
@@ -21,23 +34,34 @@ test("mint an nft", async (t) => {
     t.pass();
 });
 
-test("mint nft with 4 owners", async (t) => {
+test("mint nft with 5 owners and transfer", async (t) => {
     const { apiAddress, createContract } = t.context;
     const contract = createContract();
 
-    await contract.interact(apiAddress, {
+    const shares = divideShare(5);
+
+    const { txId: tokenId } = await contract.interact(apiAddress, {
         function: "mint",
         no: 100,
         royalties: {
-            [m.USER1]: UNIT / 4,
-            [m.USER2]: UNIT / 4,
-            [m.USER3]: UNIT / 4,
-            [m.USER4]: UNIT / 4,
+            [m.USER1]: shares[0],
+            [m.USER2]: shares[1],
+            [m.USER3]: shares[2],
+            [m.USER4]: shares[3],
+            [m.USER5]: shares[4],
         },
         primaryRate: 0.15,
         secondaryRate: 0.1,
         royaltyRate: 0.1,
     });
+
+    // await contract.interact(apiAddress, {
+    //     function: "transfer",
+    //     target: m.USER6,
+    //     tokenId:
+    // });
+
+    // await contract.inte
 
     t.pass();
 });

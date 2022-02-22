@@ -1,5 +1,6 @@
 import * as io from "io-ts";
-import { Input } from "./handlers";
+import { Input, ReadonlysResult } from "@/handlers";
+import { TransactionBatchResult } from "@/handlers/transactionBatch";
 export declare type Token = {
     ticker: string;
     owners?: string[];
@@ -40,7 +41,7 @@ export declare type State = {
     operatorApprovals: Record<string, Record<string, boolean>>;
     invocations: string[];
 };
-export declare type ReadonlyResult<T> = {
+export declare type ReadResult<T> = {
     result: T;
     state?: never;
 };
@@ -48,7 +49,11 @@ export declare type WriteResult = {
     state: State;
     result?: never;
 };
-export declare type SmartcontractResult = ReadonlyResult<unknown> | WriteResult;
+export declare type ReadWriteResult<T> = {
+    state: State;
+    result: T;
+};
+export declare type SmartcontractResult = (ReadResult<ReadonlysResult> | WriteResult) | ReadWriteResult<TransactionBatchResult>;
 export declare type Action = {
     input: Input;
     caller: string;

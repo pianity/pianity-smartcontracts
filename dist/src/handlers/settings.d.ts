@@ -1,5 +1,5 @@
 import * as io from "io-ts";
-import { State, WriteResult } from "../contractTypes";
+import { State, WriteResult } from "@/contractTypes";
 export declare const SettingsInputCodec: io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"settings">;
     settings: io.PartialC<{
