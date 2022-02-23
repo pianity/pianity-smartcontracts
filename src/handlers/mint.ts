@@ -8,8 +8,6 @@ import { checkInput } from "@/utils";
 
 export const SingleMintCodec = io.intersection([
     io.type({
-        primaryRate: io.number,
-        secondaryRate: io.number,
         royaltyRate: io.number,
     }),
     io.partial({
@@ -27,10 +25,7 @@ export const MintInputCodec = io.intersection([
 export type MintInput = io.TypeOf<typeof MintInputCodec>;
 
 export function mint(state: State, caller: string, input: MintInput): WriteResult {
-    const { royalties, primaryRate, secondaryRate, royaltyRate, qty, no, suffix } = checkInput(
-        MintInputCodec,
-        input,
-    );
+    const { royalties, royaltyRate, qty, no, suffix } = checkInput(MintInputCodec, input);
     const { contractOwners } = state.settings;
 
     ContractAssert(contractOwners.includes(caller), "mint: `caller` is not authorized to mint");
@@ -52,8 +47,6 @@ export function mint(state: State, caller: string, input: MintInput): WriteResul
         ticker: `${PST}${state.nonce}`,
         royalties,
         balances: {},
-        primaryRate,
-        secondaryRate,
         royaltyRate,
     };
     state.nonce++;

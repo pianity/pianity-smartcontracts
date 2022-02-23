@@ -8,8 +8,6 @@ export type Token = {
     owners?: string[]; // Ordered list of NFTs' owners
     balances: Record<string, string>; // owner -> balance
     royalties?: Record<string, number>;
-    primaryRate: number;
-    secondaryRate: number;
     royaltyRate: number;
 };
 
@@ -27,6 +25,8 @@ export const SettingsKnownProps = {
 
     contractOwners: io.array(io.string),
     contractSuperOwners: io.array(io.string),
+    settingsOwnersPermissions: io.array(io.string),
+
     foreignContracts: io.array(io.string),
 };
 

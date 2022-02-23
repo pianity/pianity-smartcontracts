@@ -6,8 +6,6 @@ export declare type Token = {
     owners?: string[];
     balances: Record<string, string>;
     royalties?: Record<string, number>;
-    primaryRate: number;
-    secondaryRate: number;
     royaltyRate: number;
 };
 /**
@@ -22,6 +20,7 @@ export declare const SettingsKnownProps: {
     communityChest: io.StringC;
     contractOwners: io.ArrayC<io.StringC>;
     contractSuperOwners: io.ArrayC<io.StringC>;
+    settingsOwnersPermissions: io.ArrayC<io.StringC>;
     foreignContracts: io.ArrayC<io.StringC>;
 };
 export declare const SettingsCodec: io.IntersectionC<[io.TypeC<{
@@ -30,6 +29,7 @@ export declare const SettingsCodec: io.IntersectionC<[io.TypeC<{
     communityChest: io.StringC;
     contractOwners: io.ArrayC<io.StringC>;
     contractSuperOwners: io.ArrayC<io.StringC>;
+    settingsOwnersPermissions: io.ArrayC<io.StringC>;
     foreignContracts: io.ArrayC<io.StringC>;
 }>, io.RecordC<io.StringC, io.UnknownC>]>;
 export declare type Settings = io.TypeOf<typeof SettingsCodec>;

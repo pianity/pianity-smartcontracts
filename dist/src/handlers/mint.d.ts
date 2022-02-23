@@ -1,8 +1,6 @@
 import * as io from "io-ts";
 import { State, WriteResult } from "@/contractTypes";
 export declare const SingleMintCodec: io.IntersectionC<[io.TypeC<{
-    primaryRate: io.NumberC;
-    secondaryRate: io.NumberC;
     royaltyRate: io.NumberC;
 }>, io.PartialC<{
     royalties: io.RecordC<io.StringC, io.NumberC>;
@@ -13,8 +11,6 @@ export declare const SingleMintCodec: io.IntersectionC<[io.TypeC<{
 export declare const MintInputCodec: io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"mint">;
 }>, io.IntersectionC<[io.TypeC<{
-    primaryRate: io.NumberC;
-    secondaryRate: io.NumberC;
     royaltyRate: io.NumberC;
 }>, io.PartialC<{
     royalties: io.RecordC<io.StringC, io.NumberC>;
@@ -27,8 +23,6 @@ export declare function mint(state: State, caller: string, input: MintInput): Wr
 export declare const MintBatchInputCodec: io.TypeC<{
     function: io.LiteralC<"mintBatch">;
     mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
-        primaryRate: io.NumberC;
-        secondaryRate: io.NumberC;
         royaltyRate: io.NumberC;
     }>, io.PartialC<{
         royalties: io.RecordC<io.StringC, io.NumberC>;

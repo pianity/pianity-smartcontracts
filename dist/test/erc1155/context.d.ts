@@ -1,4 +1,4 @@
-import { TestFn } from "ava";
+import { ExecutionContext, TestFn } from "ava";
 import Arweave from "arweave";
 import ContractTestingEnv from "?/ContractTestingEnv";
 import { State } from "@/contractTypes";
@@ -8,10 +8,10 @@ declare type Context = {
     caller: string;
     initialState: State;
     contractSrcPath: string;
-    apiAddress: string;
-    superOwnerAddress: string;
+    owner: string;
+    superOwner: string;
     communityChestAddress: string;
-    createContract: () => ContractTestingEnv<State, Input>;
+    createContract: (t: ExecutionContext<Context>) => ContractTestingEnv<State, Input>;
 };
 declare const test: TestFn<Context>;
 export default test;

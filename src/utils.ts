@@ -3,7 +3,7 @@ import { Type } from "io-ts";
 import { PathReporter } from "io-ts/lib/PathReporter";
 
 import { State } from "@/contractTypes";
-import { ContractAssert, ContractError } from "@/externals";
+import { ContractError } from "@/externals";
 
 /**
  * Returns `input` if `input`'s type is correct according to `codec`; throws otherwise.

@@ -1,4 +1,4 @@
-import { ContractAssert, ContractError } from "@/externals";
+import { ContractAssert, ContractError, _log } from "@/externals";
 import { exhaustive } from "@/utils";
 import { Action, SmartcontractResult, State } from "@/contractTypes";
 import * as handlers from "@/handlers";

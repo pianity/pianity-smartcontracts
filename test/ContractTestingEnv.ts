@@ -7,6 +7,7 @@ import { createContractExecutionEnvironment } from "smartweave/lib/contract-load
 import { ContractHandler, execute } from "smartweave/lib/contract-step";
 import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";
 import { InteractionTx } from "smartweave/lib/interaction-tx";
+import { LogFn } from "ava";
 import { ReadonlysResult } from "@/handlers";
 
 export type ContractExecutionEnv = {
@@ -25,28 +26,21 @@ export type Contract<STATE> = {
     initialState: STATE;
 };
 
-type ContractInteractionResult<T> = {
+type InteractionResult<T> = {
     type: "ok" | "error" | "exception";
     result: ReadonlysResult;
     txId: string;
     state: T;
 };
 
-enum ContractErrorKind {
-    Error = "Error",
-}
-
-export class ContractError extends Error {
-    kind: ContractErrorKind;
-
+export class InteractionError extends Error {
     actualError: unknown;
 
-    constructor(actualError: unknown, kind = ContractErrorKind.Error, message = "") {
-        super(`${kind}: ${message}`);
-        this.name = "ContractError";
-        this.kind = kind;
+    constructor(actualError: unknown, message = "") {
+        super(message);
+        this.name = "InteractionError";
         this.actualError = actualError;
-        Error.captureStackTrace(this, ContractError);
+        Error.captureStackTrace(this, InteractionError);
     }
 }
 
@@ -68,13 +62,14 @@ export default class ContractTestingEnv<STATE, INPUT> {
     constructor(
         srcPath: string, // from the project's root.
         initialState: STATE,
+        avaContextLog: LogFn,
         contractId = `TEST-${srcPath}`,
     ) {
         this.srcPath = srcPath;
         this.contractId = contractId;
         this.initialState = initialState;
 
-        this.contract = this.deployContract();
+        this.contract = this.deployContract(avaContextLog);
 
         this.currentHeight = 0;
     }
@@ -86,7 +81,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
     /**
      * deploys new contract and returns its contractId
      */
-    private deployContract() {
+    private deployContract(avaContextLog: LogFn) {
         if (this.srcPath === undefined || this.srcPath.length === 0) {
             throw new Error("srcPath is required.");
         }
@@ -105,6 +100,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
             src,
             this.contractId,
             "",
+            avaContextLog,
         );
 
         env.swGlobal.contracts.readContractState = () => {
@@ -122,7 +118,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
         input: INPUT,
         block?: Block,
         forcedCurrentState?: STATE,
-    ): Promise<ContractInteractionResult<STATE>> {
+    ): Promise<InteractionResult<STATE>> {
         try {
             // NOTE: no need to copy state here, as it is copied by execute method:
             // https://github.com/ArweaveTeam/SmartWeave/blob/788a974e66494ef2ab8f876024e72bf363d4c4a4/src/contract-step.ts#L56
@@ -153,7 +149,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
 
             return { ...res, txId: newTx.id };
         } catch (e) {
-            throw new ContractError(e);
+            throw new InteractionError(e);
         }
     }
 

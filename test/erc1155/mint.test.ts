@@ -1,4 +1,4 @@
-import { ContractError } from "?/ContractTestingEnv";
+import { InteractionError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
 import * as m from "?/erc1155/mocks";
 
@@ -14,8 +14,8 @@ function divideShare(count: number): number[] {
 }
 
 test("mint nft with 5 owners", async (t) => {
-    const { apiAddress, createContract } = t.context;
-    const contract = createContract();
+    const { owner: apiAddress, createContract } = t.context;
+    const contract = createContract(t);
 
     const shares = divideShare(2);
 
@@ -26,8 +26,6 @@ test("mint nft with 5 owners", async (t) => {
             [m.USER1]: shares[0],
             [m.USER2]: shares[1],
         },
-        primaryRate: 0.15,
-        secondaryRate: 0.1,
         royaltyRate: 0.1,
     });
 
@@ -35,8 +33,8 @@ test("mint nft with 5 owners", async (t) => {
 });
 
 test("mint nft with 5 owners and transfer", async (t) => {
-    const { apiAddress, createContract } = t.context;
-    const contract = createContract();
+    const { owner: apiAddress, createContract } = t.context;
+    const contract = createContract(t);
 
     const shares = divideShare(5);
 
@@ -50,8 +48,6 @@ test("mint nft with 5 owners and transfer", async (t) => {
             [m.USER4]: shares[3],
             [m.USER5]: shares[4],
         },
-        primaryRate: 0.15,
-        secondaryRate: 0.1,
         royaltyRate: 0.1,
     });
 
@@ -67,8 +63,8 @@ test("mint nft with 5 owners and transfer", async (t) => {
 });
 
 test("mintBatch", async (t) => {
-    const { apiAddress, createContract } = t.context;
-    const contract = createContract();
+    const { owner: apiAddress, createContract } = t.context;
+    const contract = createContract(t);
 
     await contract.interact(apiAddress, {
         function: "mintBatch",

@@ -1,4 +1,4 @@
-import anyTest, { TestFn } from "ava";
+import anyTest, { ExecutionContext, TestFn } from "ava";
 
 import Arweave from "arweave";
 
@@ -13,11 +13,11 @@ type Context = {
     initialState: State;
     contractSrcPath: string;
 
-    apiAddress: string;
-    superOwnerAddress: string;
+    owner: string;
+    superOwner: string;
     communityChestAddress: string;
 
-    createContract: () => ContractTestingEnv<State, Input>;
+    createContract: (t: ExecutionContext<Context>) => ContractTestingEnv<State, Input>;
 };
 
 const test = anyTest as TestFn<Context>;
@@ -29,16 +29,17 @@ test.before((t) => {
 
     const arweave = Arweave.init({});
     const caller = "50duQsQV5iMo6JNNJ4oVgVPmT2IPosO55pB7edWphB8";
-    const apiAddress = "w2YJFs6-lNr3WhL--wTKzYuzfJzAH09CUEc3BzPuLbc";
-    const superOwnerAddress = "6EJsy9WLXRMRRBOds-psdVm9o0O0f_idx3g0cEUGkz8";
+    const owner = "w2YJFs6-lNr3WhL--wTKzYuzfJzAH09CUEc3BzPuLbc";
+    const superOwner = "6EJsy9WLXRMRRBOds-psdVm9o0O0f_idx3g0cEUGkz8";
     const communityChestAddress = "rvcqUue4SjrmTSrICnChjmyWgsQvYmL5FZKT0XNtWwM";
 
     const initialState: State = {
         name: "Pianity",
         nonce: 1,
         settings: {
-            contractOwners: [apiAddress],
-            contractSuperOwners: [superOwnerAddress],
+            contractOwners: [owner],
+            contractSuperOwners: [superOwner],
+            settingsOwnersPermissions: ["allowFreeTransfer", "paused"],
             communityChest: communityChestAddress,
             foreignContracts: [],
             allowFreeTransfer: false,
@@ -48,11 +49,9 @@ test.before((t) => {
             PTY: {
                 ticker: "PTY",
                 balances: {
-                    [superOwnerAddress]: "900000000000000",
-                    [apiAddress]: "100000000000000",
+                    [superOwner]: "900000000000000",
+                    [owner]: "100000000000000",
                 },
-                primaryRate: 0.15,
-                secondaryRate: 0.1,
                 royaltyRate: 0.1,
             },
         },
@@ -60,8 +59,8 @@ test.before((t) => {
         invocations: [],
     };
 
-    const createContract = () => {
-        return new ContractTestingEnv<State, Input>(contractSrcPath, initialState);
+    const createContract = (t: ExecutionContext<Context>) => {
+        return new ContractTestingEnv<State, Input>(contractSrcPath, initialState, t.log);
     };
 
     t.context = {
@@ -69,8 +68,8 @@ test.before((t) => {
         caller,
         contractSrcPath,
         initialState,
-        apiAddress,
-        superOwnerAddress,
+        owner,
+        superOwner,
         communityChestAddress,
         createContract,
     };

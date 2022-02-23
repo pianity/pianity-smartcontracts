@@ -55,8 +55,6 @@ export declare const TransactionBatchInputCodec: io.TypeC<{
     }>, io.IntersectionC<[io.TypeC<{
         function: io.LiteralC<"mint">;
     }>, io.IntersectionC<[io.TypeC<{
-        primaryRate: io.NumberC;
-        secondaryRate: io.NumberC;
         royaltyRate: io.NumberC;
     }>, io.PartialC<{
         royalties: io.RecordC<io.StringC, io.NumberC>;
@@ -66,8 +64,6 @@ export declare const TransactionBatchInputCodec: io.TypeC<{
     }>]>]>, io.TypeC<{
         function: io.LiteralC<"mintBatch">;
         mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
-            primaryRate: io.NumberC;
-            secondaryRate: io.NumberC;
             royaltyRate: io.NumberC;
         }>, io.PartialC<{
             royalties: io.RecordC<io.StringC, io.NumberC>;
@@ -80,17 +76,18 @@ export declare const TransactionBatchInputCodec: io.TypeC<{
     }>, io.TypeC<{
         function: io.LiteralC<"burn">;
         tokenId: io.StringC;
-    }>, io.IntersectionC<[io.TypeC<{
+    }>, io.TypeC<{
         function: io.LiteralC<"settings">;
-        settings: io.PartialC<{
+        settings: io.IntersectionC<[io.PartialC<{
             allowFreeTransfer: io.BooleanC;
             paused: io.BooleanC;
             communityChest: io.StringC;
             contractOwners: io.ArrayC<io.StringC>;
             contractSuperOwners: io.ArrayC<io.StringC>;
+            settingsOwnersPermissions: io.ArrayC<io.StringC>;
             foreignContracts: io.ArrayC<io.StringC>;
-        }>;
-    }>, io.RecordC<io.StringC, io.UnknownC>]>, io.TypeC<{
+        }>, io.RecordC<io.StringC, io.UnknownC>]>;
+    }>, io.TypeC<{
         function: io.LiteralC<"foreignInvoke">;
         target: io.StringC;
         invocationId: io.StringC;
