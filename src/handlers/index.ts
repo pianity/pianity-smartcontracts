@@ -25,7 +25,6 @@ import {
 import { BurnInputCodec, MintBatchInputCodec, MintInputCodec } from "@/handlers/mint";
 import { SettingsInputCodec } from "@/handlers/settings";
 import { ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";
-import { TransactionBatchInputCodec } from "@/handlers/transactionBatch";
 
 export * from "@/handlers/readonlys";
 export * from "@/handlers/approval";
@@ -57,6 +56,14 @@ export const InputWOTxBatchCodec = io.union([
     ForeignInvokeInputCodec,
 ]);
 export type InputWOTxBatchCodec = io.TypeOf<typeof InputWOTxBatchCodec>;
+
+// NOTE: `TransactionBatchInputCodec` is defined here instead of in `transactionBatch.ts` because
+// of a bug with esbuild that makes it appear before the definition of `InputWOTxBatchCodec`.
+// TODO: Post a Github issue on esbuild's repo
+export const TransactionBatchInputCodec = io.type({
+    function: io.literal("transactionBatch"),
+    inputs: io.array(InputWOTxBatchCodec),
+});
 
 export const InputCodec = io.union([InputWOTxBatchCodec, TransactionBatchInputCodec]);
 export type Input = io.TypeOf<typeof InputCodec>;

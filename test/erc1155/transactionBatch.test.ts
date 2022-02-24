@@ -5,10 +5,10 @@ import * as m from "?/erc1155/mocks";
 import { Input } from "@/handlers";
 
 test("test transactionBatch", async (t) => {
-    const { superOwner, createContract } = t.context;
+    const { owner, createContract } = t.context;
     const contract = createContract(t);
 
-    contract.interact(superOwner, {
+    await contract.interact(owner, {
         function: "transactionBatch",
         inputs: [
             { function: "mint", ...m.LEGENDARY_MINT },
@@ -16,4 +16,6 @@ test("test transactionBatch", async (t) => {
             { function: "mint", ...m.RARE_MINT },
         ],
     });
+
+    t.pass();
 });

@@ -64,6 +64,9 @@ export async function handle(state: State, action: Action): Promise<Smartcontrac
         case "burn":
             return handlers.burn(state, caller, input);
 
+        case "transactionBatch":
+            return handlers.transactionBatch(state, caller, input);
+
         default:
             exhaustive(input);
             throw new ContractError(
