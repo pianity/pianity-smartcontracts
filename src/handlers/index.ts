@@ -25,6 +25,7 @@ import {
 import { BurnInputCodec, MintBatchInputCodec, MintInputCodec } from "@/handlers/mint";
 import { SettingsInputCodec } from "@/handlers/settings";
 import { ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";
+import { TransactionBatchInputCodec } from "@/handlers/transactionBatch";
 
 export * from "@/handlers/readonlys";
 export * from "@/handlers/approval";
@@ -32,8 +33,13 @@ export * from "@/handlers/transfer";
 export * from "@/handlers/mint";
 export * from "@/handlers/settings";
 export * from "@/handlers/foreignInvoke";
+export * from "@/handlers/transactionBatch";
 
-export const InputCodec = io.union([
+/**
+ * The codec for every Input except TransactionBatchInput. This is done because it is forbidden to
+ * nest TransactionBatch calls.
+ */
+export const InputWOTxBatchCodec = io.union([
     NameInputCodec,
     TickerInputCodec,
     BalanceInputCodec,
@@ -50,6 +56,9 @@ export const InputCodec = io.union([
     SettingsInputCodec,
     ForeignInvokeInputCodec,
 ]);
+export type InputWOTxBatchCodec = io.TypeOf<typeof InputWOTxBatchCodec>;
+
+export const InputCodec = io.union([InputWOTxBatchCodec, TransactionBatchInputCodec]);
 export type Input = io.TypeOf<typeof InputCodec>;
 
 export type ReadonlysResult =

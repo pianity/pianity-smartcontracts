@@ -33,7 +33,6 @@ export function mint(state: State, caller: string, input: MintInput): WriteResul
         (qty && !no) || (!qty && no),
         "mint: Either `qty` or `no` must be set (not simultaneously)",
     );
-    ContractAssert(!suffix || !qty, "mint: `suffix` and `qty` cannot be set simuntaneously");
 
     const tokenId = getTokenId(suffix);
 

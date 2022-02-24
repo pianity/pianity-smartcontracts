@@ -1,14 +1,13 @@
 import * as io from "io-ts";
 
 import { ReadWriteResult, State } from "@/contractTypes";
-import { Input, InputCodec, ReadonlysResult } from "@/handlers";
+import { InputWOTxBatchCodec, ReadonlysResult } from "@/handlers";
 import { checkInput } from "@/utils";
 import { handle } from "@/erc1155";
-import { ContractAssert } from "@/externals";
 
 export const TransactionBatchInputCodec = io.type({
-    function: io.literal("transactionBatchInput"),
-    inputs: io.array(InputCodec),
+    function: io.literal("transactionBatch"),
+    inputs: io.array(InputWOTxBatchCodec),
 });
 export type TransactionBatchInput = io.TypeOf<typeof TransactionBatchInputCodec>;
 export type TransactionBatchResult = {
@@ -29,10 +28,11 @@ export async function transactionBatch(
     let newState = JSON.parse(JSON.stringify(state));
 
     for (const input of inputs) {
-        ContractAssert(
-            input.function !== "transferBatch",
-            "transactionBatch: Nested transactionBatch",
-        );
+        // TODO: check if nested transactionBatchInputs are allowed
+        // ContractAssert(
+        //     input.function !== "transactionBatch",
+        //     "transactionBatch: Nested transactionBatch",
+        // );
 
         const res = await handle(newState, { caller, input });
 

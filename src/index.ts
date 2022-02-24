@@ -1,6 +1,6 @@
 export * from "@/contractTypes";
 
-export { Input } from "@/handlers";
+export { Input, InputCodec } from "@/handlers";
 
 export {
     BalanceInputCodec,
