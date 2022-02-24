@@ -2,7 +2,7 @@ import * as io from "io-ts";
 
 import { ERR_INTEGER, PST, UNIT } from "@/consts";
 import { State, Token, WriteResult } from "@/contractTypes";
-import { BigNumber, ContractAssert } from "@/externals";
+import { BigNumber, ContractAssert, _log } from "@/externals";
 import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
 import { checkInput } from "@/utils";
 import { balanceOf } from "@/handlers/readonlys";
@@ -231,7 +231,7 @@ function removeTokenFrom(state: State, from: string, tokenId: string, qty: BigNu
 
 function pay(state: State, token: Token, from: string, price: BigNumber) {
     ContractAssert(token.royalties, "pay: Token doesn't have any fees");
-    ContractAssert(price.isInteger(), ERR_INTEGER);
+    ContractAssert(price.isInteger(), `pay: ${ERR_INTEGER}`);
     ContractAssert(price.gte(0), "pay: `price` must be positive");
     ContractAssert(price.mod(1_000_000).eq(0), "pay: `price` must be a multiple of 1_000_000");
 

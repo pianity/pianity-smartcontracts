@@ -49,8 +49,8 @@ test.before((t) => {
             PTY: {
                 ticker: "PTY",
                 balances: {
-                    [superOwner]: "900000000000000",
-                    [owner]: "100000000000000",
+                    [superOwner]: "9e14",
+                    [owner]: "1e14",
                 },
                 royaltyRate: 0.1,
             },

@@ -117,3 +117,18 @@ test("change a permission", async (t) => {
         { instanceOf: InteractionError },
     );
 });
+
+test("throws: set permission to `undefined`", async (t) => {
+    const { superOwner, createContract } = t.context;
+    const contract = createContract(t);
+
+    await t.throwsAsync(
+        contract.interact(superOwner, {
+            function: "settings",
+            settings: {
+                settingsOwnersPermissions: undefined,
+            },
+        }),
+        { instanceOf: InteractionError },
+    );
+});

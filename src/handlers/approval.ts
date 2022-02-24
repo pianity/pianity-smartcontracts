@@ -20,8 +20,6 @@ export function isApprovedForAll(
 ): ReadResult<IsApprovedForallResult> {
     const { target, owner } = checkInput(IsApprovedForAllInputCodec, input);
 
-    ContractAssert(owner, "No owner specified");
-    ContractAssert(target, ERR_NOTARGET);
     const approved = isApprovedForAllHelper(state, owner, target);
 
     return { result: { approved } };
@@ -41,8 +39,6 @@ export function setApprovalForAll(
 ): WriteResult {
     const { approved, target } = checkInput(SetApprovalForAllInputCodec, input);
 
-    ContractAssert(target, ERR_NOTARGET);
-    ContractAssert(typeof approved !== "undefined", "No approved parameter specified");
     ContractAssert(target !== caller, "Target must be different from the caller");
 
     if (!(caller in state.operatorApprovals)) {

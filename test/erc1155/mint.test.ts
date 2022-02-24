@@ -1,17 +1,8 @@
+import BigNumber from "bignumber.js";
 import { InteractionError } from "?/ContractTestingEnv";
 import test from "?/erc1155/context";
 import * as m from "?/erc1155/mocks";
-
-import { UNIT } from "@/consts";
-import { TransferInput } from "@/handlers";
-
-function divideShare(count: number): number[] {
-    const shareInt = Math.floor(UNIT / count);
-    const shares = Array(count).fill(shareInt);
-    shares[shares.length - 1] = UNIT - shareInt * (count - 1);
-
-    return shares;
-}
+import { divideShare } from "?/utils";
 
 test("mint nft with 5 owners", async (t) => {
     const { owner: apiAddress, createContract } = t.context;
@@ -32,36 +23,6 @@ test("mint nft with 5 owners", async (t) => {
     t.pass();
 });
 
-test("mint nft with 5 owners and transfer", async (t) => {
-    const { owner: apiAddress, createContract } = t.context;
-    const contract = createContract(t);
-
-    const shares = divideShare(5);
-
-    const { txId: tokenId } = await contract.interact(apiAddress, {
-        function: "mint",
-        no: 100,
-        royalties: {
-            [m.USER1]: shares[0],
-            [m.USER2]: shares[1],
-            [m.USER3]: shares[2],
-            [m.USER4]: shares[3],
-            [m.USER5]: shares[4],
-        },
-        royaltyRate: 0.1,
-    });
-
-    // await contract.interact(apiAddress, {
-    //     function: "transfer",
-    //     target: m.USER6,
-    //     tokenId:
-    // });
-
-    // await contract.inte
-
-    t.pass();
-});
-
 test("mintBatch", async (t) => {
     const { owner: apiAddress, createContract } = t.context;
     const contract = createContract(t);
@@ -74,21 +35,42 @@ test("mintBatch", async (t) => {
     t.pass();
 });
 
-// test("royalties", async (t) => {
-//     const { apiAddress } = t.context;
-//     const contract = t.context.createContract();
-//
-//     const randomUser = await generateAddress();
-//
-//     await contract.interact(apiAddress, {
-//         function: "transfer",
-//         target: randomUser,
-//         qty: 1,
-//     });
-//
-//     await contract.interact(apiAddress, {
-//         function: "royalties",
-//     });
-//
-//     t.assert(contract.readState().tokens.PTY.balances[randomUser] === 1);
-// });
+test("mintBatch with invalid mints", async (t) => {
+    const { owner: apiAddress, createContract } = t.context;
+    const contract = createContract(t);
+
+    await t.throwsAsync(
+        contract.interact(apiAddress, {
+            function: "mintBatch",
+            mints: [m.UNIQUE_MINT, m.EPIC_MINT, m.UNIQUE_MINT],
+        }),
+        {
+            instanceOf: InteractionError,
+        },
+    );
+
+    t.pass();
+});
+
+test("throws: buggy mint", async (t) => {
+    const { owner: apiAddress, createContract } = t.context;
+    const contract = createContract(t);
+
+    // mint with 0 shares
+    await t.throwsAsync(
+        contract.interact(apiAddress, {
+            function: "mint",
+            no: 100,
+            royalties: {
+                [m.USER1]: 0,
+                [m.USER2]: 0,
+            },
+            royaltyRate: 0.1,
+        }),
+        {
+            instanceOf: InteractionError,
+        },
+    );
+
+    t.pass();
+});
