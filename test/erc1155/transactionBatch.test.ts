@@ -4,7 +4,7 @@ import * as m from "?/erc1155/mocks";
 
 import { Input } from "@/handlers";
 
-test("test transactionBatch", async (t) => {
+test("mint 3 different nfts", async (t) => {
     const { owner, createContract } = t.context;
     const contract = createContract(t);
 
@@ -18,4 +18,22 @@ test("test transactionBatch", async (t) => {
     });
 
     t.pass();
+});
+
+test("throws: nest transactionBatch calls", async (t) => {
+    const { owner, createContract } = t.context;
+    const contract = createContract(t);
+
+    await t.throwsAsync(
+        contract.interact(owner, {
+            function: "transactionBatch",
+            inputs: [
+                {
+                    function: "transactionBatch",
+                    inputs: [{ function: "mint", ...m.LEGENDARY_MINT }],
+                },
+            ],
+        } as unknown as Input),
+        { instanceOf: InteractionError },
+    );
 });

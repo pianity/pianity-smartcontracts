@@ -1,7 +1,7 @@
 import * as io from "io-ts";
 
 import { ReadWriteResult, State } from "@/contractTypes";
-import { InputWOTxBatchCodec, ReadonlysResult, TransactionBatchInputCodec } from "@/handlers";
+import { ReadonlysResult, TransactionBatchInputCodec } from "@/handlers";
 import { checkInput } from "@/utils";
 import { handle } from "@/erc1155";
 
