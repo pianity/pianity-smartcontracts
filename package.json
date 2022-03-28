@@ -9,13 +9,12 @@
     },
     "scripts": {
         "build:contract": "ts-node scripts/build.ts",
-        "build:declarations": "tsc",
+        "build:declarations": "tsc && tsc-alias",
         "typecheck": "tsc --emitDeclarationOnly false --noEmit",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
         "test": "ava",
-        "postinstall": "patch-package",
-        "prepare": "ts-patch install -s"
+        "postinstall": "patch-package"
     },
     "dependencies": {
         "arweave": "^1.10.23",
@@ -44,9 +43,8 @@
         "eslint-plugin-import": "^2.25.3",
         "eslint-plugin-tsdoc": "^0.2.14",
         "prettier": "^2.5.0",
-        "ts-patch": "^2.0.1",
-        "tsconfig-paths": "^3.12.0",
-        "typescript-transform-paths": "^3.3.1"
+        "tsc-alias": "^1.6.4",
+        "tsconfig-paths": "^3.14.1"
     },
     "ava": {
         "files": [
@@ -56,8 +54,7 @@
             "ts"
         ],
         "require": [
-            "ts-node/register",
-            "tsconfig-paths/register"
+            "ts-node/register"
         ]
     }
 }
