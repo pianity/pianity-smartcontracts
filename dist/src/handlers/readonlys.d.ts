@@ -1,6 +1,6 @@
 import * as io from "io-ts";
-import { ReadResult, State } from "@/contractTypes";
-import { BigNumber } from "@/externals";
+import { ReadResult, State } from "../contractTypes";
+import { BigNumber } from "../externals";
 export declare const NameInputCodec: io.TypeC<{
     function: io.LiteralC<"name">;
 }>;

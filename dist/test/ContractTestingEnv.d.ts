@@ -1,7 +1,7 @@
 import { ContractHandler } from "smartweave/lib/contract-step";
 import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";
 import { LogFn } from "ava";
-import { ReadonlysResult } from "@/handlers";
+import { ReadonlysResult } from "../src/handlers";
 export declare type ContractExecutionEnv = {
     handler: ContractHandler;
     swGlobal: SmartWeaveGlobal;
@@ -32,7 +32,7 @@ export default class ContractTestingEnv<STATE, INPUT> {
     readonly contractId: string;
     currentHeight: number;
     constructor(srcPath: string, // from the project's root.
-    initialState: STATE, log: LogFn, contractId?: string);
+    initialState: STATE, avaContextLog: LogFn, contractId?: string);
     /**
      * deploys new contract and returns its contractId
      */

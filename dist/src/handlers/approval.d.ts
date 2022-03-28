@@ -1,5 +1,5 @@
 import * as io from "io-ts";
-import { ReadResult, State, WriteResult } from "@/contractTypes";
+import { ReadResult, State, WriteResult } from "../contractTypes";
 export declare const IsApprovedForAllInputCodec: io.TypeC<{
     function: io.LiteralC<"isApprovedForAll">;
     target: io.StringC;

@@ -1,6 +1,6 @@
 import * as io from "io-ts";
-import { Input, ReadonlysResult } from "@/handlers";
-import { TransactionBatchResult } from "@/handlers/transactionBatch";
+import { Input, ReadonlysResult } from "./handlers";
+import { TransactionBatchResult } from "./handlers/transactionBatch";
 export declare type Token = {
     ticker: string;
     owners?: string[];

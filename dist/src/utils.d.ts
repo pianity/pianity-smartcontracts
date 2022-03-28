@@ -1,5 +1,5 @@
 import { Type } from "io-ts";
-import { State } from "@/contractTypes";
+import { State } from "./contractTypes";
 /**
  * Returns `input` if `input`'s type is correct according to `codec`; throws otherwise.
  */
