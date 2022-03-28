@@ -7,9 +7,8 @@ import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
 import { checkInput } from "@/utils";
 import { balanceOf } from "@/handlers/readonlys";
 
-export const TransferInputCodec = io.intersection([
+export const SingleTransferCodec = io.intersection([
     io.type({
-        function: io.literal("transfer"),
         target: io.string,
     }),
     io.partial({
@@ -19,6 +18,11 @@ export const TransferInputCodec = io.intersection([
         no: io.number,
         price: io.string,
     }),
+]);
+
+export const TransferInputCodec = io.intersection([
+    io.type({ function: io.literal("transfer") }),
+    SingleTransferCodec,
 ]);
 export type TransferInput = io.TypeOf<typeof TransferInputCodec>;
 
@@ -71,19 +75,10 @@ export function transfer(state: State, caller: string, input: TransferInput): Wr
     return { state };
 }
 
-export const TransferBatchInputCodec = io.intersection([
-    io.type({
-        function: io.literal("transferBatch"),
-        targets: io.array(io.string),
-        froms: io.array(io.string),
-        tokenIds: io.array(io.string),
-    }),
-    io.partial({
-        qtys: io.array(io.string),
-        prices: io.array(io.string),
-        nos: io.array(io.number),
-    }),
-]);
+export const TransferBatchInputCodec = io.type({
+    function: io.literal("transferBatch"),
+    transfers: io.array(SingleTransferCodec),
+});
 export type TransferBatchInput = io.TypeOf<typeof TransferBatchInputCodec>;
 
 export function transferBatch(
@@ -91,45 +86,10 @@ export function transferBatch(
     caller: string,
     input: TransferBatchInput,
 ): WriteResult {
-    const { targets, froms, tokenIds, qtys, prices, nos } = checkInput(
-        TransferBatchInputCodec,
-        input,
-    );
+    const { transfers } = checkInput(TransferBatchInputCodec, input);
 
-    ContractAssert(
-        tokenIds.length === froms.length,
-        "transferBatch: `tokenIds` and `froms` length mismatch",
-    );
-    ContractAssert(
-        tokenIds.length === targets.length,
-        "transferBatch: `tokenIds` and `targets` length mismatch",
-    );
-    ContractAssert(qtys || nos, "transferBatch: At least one of `qtys` or `nos` must be set");
-    ContractAssert(
-        !qtys || tokenIds.length === qtys.length,
-        "transferBatch: `tokenIds` and `qtys` length mismatch",
-    );
-    ContractAssert(
-        !nos || tokenIds.length === nos.length,
-        "transferBatch: `tokenIds` and `nos` length mismatch",
-    );
-
-    for (const i in tokenIds) {
-        const from = typeof froms[i] === "undefined" ? caller : froms[i];
-        const no = nos ? nos[i] : undefined;
-        const qty = qtys ? qtys[i] : undefined;
-        const price = prices ? prices[i] : undefined;
-
-        ContractAssert(targets[i], `transferBatch: No target found for \`tokenIds[${i}]\``);
-        transfer(state, caller, {
-            function: "transfer",
-            from,
-            target: targets[i],
-            tokenId: tokenIds[i],
-            qty,
-            no,
-            price,
-        });
+    for (const transferInput of transfers) {
+        transfer(state, caller, { function: "transfer", ...transferInput });
     }
 
     return { state };
