@@ -33,4 +33,7 @@ export { MintInput, MintInputCodec } from "@/handlers/mint";
 
 export { SettingsInput, SettingsInputCodec } from "@/handlers/settings";
 
+export { TransactionBatchInputCodec } from "@/handlers";
+export { TransactionBatchInput } from "@/handlers/transactionBatch";
+
 export { ForeignInvokeInput, ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";
