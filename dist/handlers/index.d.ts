@@ -66,23 +66,21 @@ export declare const InputWOTxBatchCodec: io.UnionC<[io.TypeC<{
     qty: io.NumberC;
 }>, io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"mint">;
-}>, io.IntersectionC<[io.TypeC<{
-    royaltyRate: io.NumberC;
 }>, io.PartialC<{
+    royaltyRate: io.NumberC;
     royalties: io.RecordC<io.StringC, io.NumberC>;
-    qty: io.StringC;
     no: io.NumberC;
+    qty: io.StringC;
     suffix: io.StringC;
-}>]>]>, io.TypeC<{
+}>]>, io.TypeC<{
     function: io.LiteralC<"mintBatch">;
-    mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
+    mints: io.ArrayC<io.IntersectionC<[io.PartialC<{
         royaltyRate: io.NumberC;
-    }>, io.PartialC<{
         royalties: io.RecordC<io.StringC, io.NumberC>;
-        qty: io.StringC;
         no: io.NumberC;
+        qty: io.StringC;
         suffix: io.StringC;
-    }>]>, io.TypeC<{
+    }>, io.TypeC<{
         suffix: io.StringC;
     }>]>>;
 }>, io.TypeC<{
@@ -161,23 +159,21 @@ export declare const TransactionBatchInputCodec: io.TypeC<{
         qty: io.NumberC;
     }>, io.IntersectionC<[io.TypeC<{
         function: io.LiteralC<"mint">;
-    }>, io.IntersectionC<[io.TypeC<{
-        royaltyRate: io.NumberC;
     }>, io.PartialC<{
+        royaltyRate: io.NumberC;
         royalties: io.RecordC<io.StringC, io.NumberC>;
-        qty: io.StringC;
         no: io.NumberC;
+        qty: io.StringC;
         suffix: io.StringC;
-    }>]>]>, io.TypeC<{
+    }>]>, io.TypeC<{
         function: io.LiteralC<"mintBatch">;
-        mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
+        mints: io.ArrayC<io.IntersectionC<[io.PartialC<{
             royaltyRate: io.NumberC;
-        }>, io.PartialC<{
             royalties: io.RecordC<io.StringC, io.NumberC>;
-            qty: io.StringC;
             no: io.NumberC;
+            qty: io.StringC;
             suffix: io.StringC;
-        }>]>, io.TypeC<{
+        }>, io.TypeC<{
             suffix: io.StringC;
         }>]>>;
     }>, io.TypeC<{
@@ -254,23 +250,21 @@ export declare const InputCodec: io.UnionC<[io.UnionC<[io.TypeC<{
     qty: io.NumberC;
 }>, io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"mint">;
-}>, io.IntersectionC<[io.TypeC<{
-    royaltyRate: io.NumberC;
 }>, io.PartialC<{
+    royaltyRate: io.NumberC;
     royalties: io.RecordC<io.StringC, io.NumberC>;
-    qty: io.StringC;
     no: io.NumberC;
+    qty: io.StringC;
     suffix: io.StringC;
-}>]>]>, io.TypeC<{
+}>]>, io.TypeC<{
     function: io.LiteralC<"mintBatch">;
-    mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
+    mints: io.ArrayC<io.IntersectionC<[io.PartialC<{
         royaltyRate: io.NumberC;
-    }>, io.PartialC<{
         royalties: io.RecordC<io.StringC, io.NumberC>;
-        qty: io.StringC;
         no: io.NumberC;
+        qty: io.StringC;
         suffix: io.StringC;
-    }>]>, io.TypeC<{
+    }>, io.TypeC<{
         suffix: io.StringC;
     }>]>>;
 }>, io.TypeC<{
@@ -347,23 +341,21 @@ export declare const InputCodec: io.UnionC<[io.UnionC<[io.TypeC<{
         qty: io.NumberC;
     }>, io.IntersectionC<[io.TypeC<{
         function: io.LiteralC<"mint">;
-    }>, io.IntersectionC<[io.TypeC<{
-        royaltyRate: io.NumberC;
     }>, io.PartialC<{
+        royaltyRate: io.NumberC;
         royalties: io.RecordC<io.StringC, io.NumberC>;
-        qty: io.StringC;
         no: io.NumberC;
+        qty: io.StringC;
         suffix: io.StringC;
-    }>]>]>, io.TypeC<{
+    }>]>, io.TypeC<{
         function: io.LiteralC<"mintBatch">;
-        mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
+        mints: io.ArrayC<io.IntersectionC<[io.PartialC<{
             royaltyRate: io.NumberC;
-        }>, io.PartialC<{
             royalties: io.RecordC<io.StringC, io.NumberC>;
-            qty: io.StringC;
             no: io.NumberC;
+            qty: io.StringC;
             suffix: io.StringC;
-        }>]>, io.TypeC<{
+        }>, io.TypeC<{
             suffix: io.StringC;
         }>]>>;
     }>, io.TypeC<{

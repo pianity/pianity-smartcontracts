@@ -71,6 +71,32 @@ test("throws: buggy mint", async (t) => {
             instanceOf: InteractionError,
         },
     );
+});
 
-    t.pass();
+test("throws: mint missing royalties or royaltyRate", async (t) => {
+    const { owner: apiAddress, createContract } = t.context;
+    const contract = createContract(t);
+
+    const shares = divideShare(2);
+
+    await t.throwsAsync(
+        contract.interact(apiAddress, {
+            function: "mint",
+            no: 100,
+            royalties: {
+                [m.USER1]: shares[0],
+                [m.USER2]: shares[1],
+            },
+        }),
+        { instanceOf: InteractionError },
+    );
+
+    await t.throwsAsync(
+        contract.interact(apiAddress, {
+            function: "mint",
+            no: 100,
+            royaltyRate: 0.1,
+        }),
+        { instanceOf: InteractionError },
+    );
 });

@@ -17,19 +17,12 @@ export async function transactionBatch(
 ): Promise<ReadWriteResult<TransactionBatchResult>> {
     const { inputs } = checkInput(TransactionBatchInputCodec, input);
 
-    // const transactions: [] = input.transactions || [];
     const results = [];
 
     // We deep clone the state to avoid side effects from failed batch
     let newState = JSON.parse(JSON.stringify(state));
 
     for (const input of inputs) {
-        // TODO: check if nested transactionBatchInputs are allowed
-        // ContractAssert(
-        //     input.function !== "transactionBatch",
-        //     "transactionBatch: Nested transactionBatch",
-        // );
-
         const res = await handle(newState, { caller, input });
 
         if ("state" in res) {
@@ -40,7 +33,6 @@ export async function transactionBatch(
     }
 
     state = { ...state, ...newState };
-    // Object.assign(state, newState);
 
     return { state, result: { results } };
 }

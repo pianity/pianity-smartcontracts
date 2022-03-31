@@ -2,21 +2,17 @@ import * as io from "io-ts";
 
 import { ERR_INTEGER, ERR_NOTOKENID, PST } from "@/consts";
 import { State, Token, WriteResult } from "@/contractTypes";
-import { ContractAssert, SmartWeave, BigNumber } from "@/externals";
+import { ContractAssert, SmartWeave, BigNumber, _log } from "@/externals";
 import { checkRoyalties, addTokenTo } from "@/handlers/transfer";
 import { checkInput } from "@/utils";
 
-export const SingleMintCodec = io.intersection([
-    io.type({
-        royaltyRate: io.number,
-    }),
-    io.partial({
-        royalties: io.record(io.string, io.number),
-        qty: io.string,
-        no: io.number,
-        suffix: io.string,
-    }),
-]);
+export const SingleMintCodec = io.partial({
+    royaltyRate: io.number,
+    royalties: io.record(io.string, io.number),
+    no: io.number,
+    qty: io.string,
+    suffix: io.string,
+});
 
 export const MintInputCodec = io.intersection([
     io.type({ function: io.literal("mint") }),
@@ -25,13 +21,14 @@ export const MintInputCodec = io.intersection([
 export type MintInput = io.TypeOf<typeof MintInputCodec>;
 
 export function mint(state: State, caller: string, input: MintInput): WriteResult {
-    const { royalties, royaltyRate, qty, no, suffix } = checkInput(MintInputCodec, input);
+    const { royalties, royaltyRate, no, qty, suffix } = checkInput(MintInputCodec, input);
     const { contractOwners } = state.settings;
 
     ContractAssert(contractOwners.includes(caller), "mint: `caller` is not authorized to mint");
+
     ContractAssert(
-        (qty && !no) || (!qty && no),
-        "mint: Either `qty` or `no` must be set (not simultaneously)",
+        (qty && !no && !royalties && !royaltyRate) || (!qty && no && royaltyRate && royalties),
+        "mint: Either `qty` or `no` must be set (not simultaneously). When `no` is set, `royalties` and `royaltyRate` must be set as well.",
     );
 
     const tokenId = getTokenId(suffix);
@@ -67,10 +64,7 @@ export function mint(state: State, caller: string, input: MintInput): WriteResul
 export const MintBatchInputCodec = io.type({
     function: io.literal("mintBatch"),
     mints: io.array(
-        io.intersection([
-            SingleMintCodec,
-            io.type({ suffix: SingleMintCodec.types[1].props.suffix }),
-        ]),
+        io.intersection([SingleMintCodec, io.type({ suffix: SingleMintCodec.props.suffix })]),
     ),
 });
 export type MintBatchInput = io.TypeOf<typeof MintBatchInputCodec>;

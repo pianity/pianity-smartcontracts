@@ -6,7 +6,7 @@ export declare type Token = {
     owners?: string[];
     balances: Record<string, string>;
     royalties?: Record<string, number>;
-    royaltyRate: number;
+    royaltyRate?: number;
 };
 /**
  * Props present in the initial state settings.

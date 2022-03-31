@@ -1,35 +1,32 @@
 import * as io from "io-ts";
 import { State, WriteResult } from "../contractTypes";
-export declare const SingleMintCodec: io.IntersectionC<[io.TypeC<{
+export declare const SingleMintCodec: io.PartialC<{
     royaltyRate: io.NumberC;
-}>, io.PartialC<{
     royalties: io.RecordC<io.StringC, io.NumberC>;
-    qty: io.StringC;
     no: io.NumberC;
+    qty: io.StringC;
     suffix: io.StringC;
-}>]>;
+}>;
 export declare const MintInputCodec: io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"mint">;
-}>, io.IntersectionC<[io.TypeC<{
-    royaltyRate: io.NumberC;
 }>, io.PartialC<{
+    royaltyRate: io.NumberC;
     royalties: io.RecordC<io.StringC, io.NumberC>;
-    qty: io.StringC;
     no: io.NumberC;
+    qty: io.StringC;
     suffix: io.StringC;
-}>]>]>;
+}>]>;
 export declare type MintInput = io.TypeOf<typeof MintInputCodec>;
 export declare function mint(state: State, caller: string, input: MintInput): WriteResult;
 export declare const MintBatchInputCodec: io.TypeC<{
     function: io.LiteralC<"mintBatch">;
-    mints: io.ArrayC<io.IntersectionC<[io.IntersectionC<[io.TypeC<{
+    mints: io.ArrayC<io.IntersectionC<[io.PartialC<{
         royaltyRate: io.NumberC;
-    }>, io.PartialC<{
         royalties: io.RecordC<io.StringC, io.NumberC>;
-        qty: io.StringC;
         no: io.NumberC;
+        qty: io.StringC;
         suffix: io.StringC;
-    }>]>, io.TypeC<{
+    }>, io.TypeC<{
         suffix: io.StringC;
     }>]>>;
 }>;

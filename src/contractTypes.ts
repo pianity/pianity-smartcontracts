@@ -8,7 +8,7 @@ export type Token = {
     owners?: string[]; // Ordered list of NFTs' owners
     balances: Record<string, string>; // owner -> balance
     royalties?: Record<string, number>;
-    royaltyRate: number;
+    royaltyRate?: number;
 };
 
 /**

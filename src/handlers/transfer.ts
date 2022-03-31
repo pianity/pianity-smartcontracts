@@ -190,7 +190,7 @@ function removeTokenFrom(state: State, from: string, tokenId: string, qty: BigNu
 }
 
 function pay(state: State, token: Token, from: string, price: BigNumber) {
-    ContractAssert(token.royalties, "pay: Token doesn't have any fees");
+    ContractAssert(token.royalties && token.royaltyRate, "pay: Token doesn't have any fees");
     ContractAssert(price.isInteger(), `pay: ${ERR_INTEGER}`);
     ContractAssert(price.gte(0), "pay: `price` must be positive");
     ContractAssert(price.mod(1_000_000).eq(0), "pay: `price` must be a multiple of 1_000_000");
