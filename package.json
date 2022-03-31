@@ -9,7 +9,7 @@
     },
     "scripts": {
         "build:contract": "ts-node scripts/build.ts",
-        "build:declarations": "tsc && tsc-alias",
+        "build:declarations": "tsc -p tsconfig.contract.json && tsc-alias -p tsconfig.contract.json",
         "typecheck": "tsc --emitDeclarationOnly false --noEmit",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
@@ -25,7 +25,7 @@
         "io-ts": "^2.2.16",
         "patch-package": "^6.4.7",
         "postinstall-postinstall": "^2.1.0",
-        "redstone-smartweave": "^0.4.22",
+        "redstone-smartweave": "^0.4.53",
         "replace-in-file": "^6.3.2",
         "smartweave": "0.4.46",
         "ts-node": "^10.4.0",

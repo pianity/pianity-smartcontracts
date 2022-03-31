@@ -17,11 +17,11 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["src/*"],
-            "#/*": ["scrips/*"],
+            "$/*": ["scripts/*"],
             "?/*": ["test/*"]
         }
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "scripts/**/*.ts", "test/**/*.ts"],
     "ts-node": {
         "transpileOnly": true,
         "require": ["tsconfig-paths/register"]
