@@ -2,6 +2,7 @@
     "name": "pianity-smartcontracts",
     "version": "1.0.0",
     "types": "dist/index.d.ts",
+    "main": "dist/main.js",
     "license": "MIT",
     "author": "Eyal Chojnowski <eyal@pianity.com>",
     "engines": {
@@ -10,7 +11,7 @@
     "scripts": {
         "build:contract": "ts-node scripts/build.ts",
         "build:declarations": "tsc -p tsconfig.contract.json && tsc-alias -p tsconfig.contract.json",
-        "typecheck": "tsc --emitDeclarationOnly false --noEmit",
+        "typecheck": "tsc --noEmit",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
         "test": "ava",
