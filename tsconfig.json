@@ -21,6 +21,7 @@
             "?/*": ["test/*"]
         }
     },
+    "include": ["src/**/*.ts"],
     "ts-node": {
         "transpileOnly": true,
         "require": ["tsconfig-paths/register"]
