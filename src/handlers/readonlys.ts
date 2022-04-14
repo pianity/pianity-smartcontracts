@@ -2,7 +2,7 @@ import * as io from "io-ts";
 
 import { ERR_404TOKENID, ERR_NOTARGET, ERR_NOTOKENID, PST } from "@/consts";
 import { ReadResult, State } from "@/contractTypes";
-import { BigNumber, ContractAssert } from "@/externals";
+import { BigNumber, ContractAssert, SmartWeave, _log } from "@/externals";
 import { checkInput } from "@/utils";
 
 export const NameInputCodec = io.type({ function: io.literal("name") });
@@ -34,6 +34,8 @@ export function ticker(state: State, caller: string, input: TickerInput): ReadRe
     return { result: { ticker } };
 }
 
+export type BalanceResult = { target: string; balance: string };
+
 export const BalanceInputCodec = io.intersection([
     io.type({
         function: io.literal("balance"),
@@ -44,20 +46,93 @@ export const BalanceInputCodec = io.intersection([
     }),
 ]);
 export type BalanceInput = io.TypeOf<typeof BalanceInputCodec>;
-export type BalanceResult = { target: string; balance: string };
 
+/**
+ * Returns the unlocked balance of `target` or caller
+ */
 export function balance(
     state: State,
     caller: string,
     input: BalanceInput,
 ): ReadResult<BalanceResult> {
-    const { target, tokenId } = checkInput(BalanceInputCodec, input);
+    const { target = caller, tokenId = PST } = checkInput(BalanceInputCodec, input);
 
-    const effectiveTarget = target || caller;
+    const balance = balanceOf(state, tokenId || PST, target);
 
-    const balance = balanceOf(state, tokenId || PST, effectiveTarget);
+    return { result: { target, balance: balance.toString() } };
+}
 
-    return { result: { target: effectiveTarget, balance: balance.toString() } };
+export const VaultBalanceInputCodec = io.intersection([
+    io.type({
+        function: io.literal("vaultBalance"),
+    }),
+    io.partial({
+        target: io.string,
+        tokenId: io.string,
+    }),
+]);
+export type VaultBalanceInput = io.TypeOf<typeof VaultBalanceInputCodec>;
+
+export function vaultBalance(
+    state: State,
+    caller: string,
+    input: VaultBalanceInput,
+): ReadResult<BalanceResult> {
+    const { target = caller, tokenId = PST } = checkInput(VaultBalanceInputCodec, input);
+
+    const vault = state.vaults[target];
+
+    let balance = new BigNumber(0);
+
+    if (vault) {
+        const blockHeight = SmartWeave.block.height;
+
+        for (const vaultItem of vault) {
+            if (vaultItem.tokenId === tokenId && blockHeight < vaultItem.end) {
+                balance = balance.plus(new BigNumber(vaultItem.balance));
+            }
+        }
+    }
+
+    return { result: { target, balance: balance.toString() } };
+}
+
+export const TotalBalanceInputCodec = io.intersection([
+    io.type({
+        function: io.literal("totalBalance"),
+    }),
+    io.partial({
+        target: io.string,
+        tokenId: io.string,
+    }),
+]);
+export type TotalBalanceInput = io.TypeOf<typeof TotalBalanceInputCodec>;
+
+/**
+ * Returns the unlocked + locked balance of `target` or caller
+ */
+export function totalBalance(
+    state: State,
+    caller: string,
+    input: TotalBalanceInput,
+): ReadResult<BalanceResult> {
+    const { target = caller, tokenId = PST } = checkInput(TotalBalanceInputCodec, input);
+
+    const token = state.tokens[tokenId];
+    ContractAssert(token, "totalBalanceOf: Token not found");
+
+    let balance = new BigNumber(token.balances[target] || 0);
+
+    const vaults = state.vaults[target];
+    if (vaults) {
+        for (const vault of vaults) {
+            if (vault.tokenId === tokenId) {
+                balance = balance.plus(vault.balance);
+            }
+        }
+    }
+
+    return { result: { target, balance: balance.toString() } };
 }
 
 export const RoyaltiesInputCodec = io.type({

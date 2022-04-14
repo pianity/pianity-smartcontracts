@@ -2,6 +2,8 @@ import * as io from "io-ts";
 
 import {
     BalanceInputCodec,
+    VaultBalanceInputCodec,
+    TotalBalanceInputCodec,
     BalanceResult,
     NameInputCodec,
     NameResult,
@@ -25,6 +27,12 @@ import {
 import { BurnInputCodec, MintBatchInputCodec, MintInputCodec } from "@/handlers/mint";
 import { SettingsInputCodec } from "@/handlers/settings";
 import { ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";
+import {
+    LockInputCodec,
+    UnlockInputCodec,
+    IncreaseVaultInputCodec,
+    TransferLockedInputCodec,
+} from "@/handlers/vault";
 
 export * from "@/handlers/readonlys";
 export * from "@/handlers/approval";
@@ -33,6 +41,7 @@ export * from "@/handlers/mint";
 export * from "@/handlers/settings";
 export * from "@/handlers/foreignInvoke";
 export * from "@/handlers/transactionBatch";
+export * from "@/handlers/vault";
 
 /**
  * The codec for every Input except TransactionBatchInput. This is done because it is forbidden to
@@ -42,6 +51,8 @@ export const InputWOTxBatchCodec = io.union([
     NameInputCodec,
     TickerInputCodec,
     BalanceInputCodec,
+    VaultBalanceInputCodec,
+    TotalBalanceInputCodec,
     RoyaltiesInputCodec,
     OwnerInputCodec,
     IsApprovedForAllInputCodec,
@@ -53,6 +64,10 @@ export const InputWOTxBatchCodec = io.union([
     MintBatchInputCodec,
     BurnInputCodec,
     SettingsInputCodec,
+    LockInputCodec,
+    UnlockInputCodec,
+    IncreaseVaultInputCodec,
+    TransferLockedInputCodec,
     ForeignInvokeInputCodec,
 ]);
 export type InputWOTxBatchCodec = io.TypeOf<typeof InputWOTxBatchCodec>;

@@ -1,4 +1,8 @@
 export const PST = "PTY";
+/**
+ * Community Token
+ */
+export const CT = "PIA";
 export const UNIT = 1_000_000;
 export const ERR_404TOKENID = "No token found: Invalid tokenId";
 export const ERR_NOTOKENID = "No tokenId specified";

@@ -2,6 +2,7 @@ import * as io from "io-ts";
 
 import { Input, ReadonlysResult } from "@/handlers";
 import { TransactionBatchResult } from "@/handlers/transactionBatch";
+import { CT } from "@/consts";
 
 export type Token = {
     ticker: string;
@@ -28,6 +29,9 @@ export const SettingsKnownProps = {
     settingsOwnersPermissions: io.array(io.string),
 
     foreignContracts: io.array(io.string),
+
+    lockMinLength: io.number,
+    lockMaxLength: io.number,
 };
 
 export const SettingsCodec = io.intersection([
@@ -36,13 +40,22 @@ export const SettingsCodec = io.intersection([
 ]);
 export type Settings = io.TypeOf<typeof SettingsCodec>;
 
+export type Vault = {
+    tokenId: string;
+    balance: string;
+    start: number;
+    end: number;
+};
+
 export type State = {
     name: string;
     nonce: number;
     settings: Settings;
 
+    vaults: Record<string, Vault[]>;
     tokens: Record<string, Token>; // token ID -> Token
     operatorApprovals: Record<string, Record<string, boolean>>; // owner -> approved operators...
+
     invocations: string[];
 };
 

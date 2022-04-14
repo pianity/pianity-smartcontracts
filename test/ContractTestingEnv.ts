@@ -74,10 +74,6 @@ export default class ContractTestingEnv<STATE, INPUT> {
         this.currentHeight = 0;
     }
 
-    // deploy(contract: Contract<STATE>): string {
-    //     return this.deployContract(contract.src, contract.initialState, contract.txId);
-    // }
-
     /**
      * deploys new contract and returns its contractId
      */
@@ -151,6 +147,10 @@ export default class ContractTestingEnv<STATE, INPUT> {
         } catch (e) {
             throw new InteractionError(e);
         }
+    }
+
+    incrementHeight(n = 1) {
+        this.currentHeight += n;
     }
 
     clearState() {

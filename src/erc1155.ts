@@ -17,6 +17,12 @@ export async function handle(state: State, action: Action): Promise<Smartcontrac
         case "balance":
             return handlers.balance(state, caller, input);
 
+        case "vaultBalance":
+            return handlers.vaultBalance(state, caller, input);
+
+        case "totalBalance":
+            return handlers.totalBalance(state, caller, input);
+
         case "royalties":
             return handlers.royalties(state, caller, input);
 
@@ -63,6 +69,18 @@ export async function handle(state: State, action: Action): Promise<Smartcontrac
 
         case "burn":
             return handlers.burn(state, caller, input);
+
+        case "transferLocked":
+            return handlers.transferLocked(state, caller, input);
+
+        case "lock":
+            return handlers.lock(state, caller, input);
+
+        case "unlock":
+            return handlers.unlock(state, caller, input);
+
+        case "increaseVault":
+            return handlers.increaseVault(state, caller, input);
 
         case "transactionBatch":
             return handlers.transactionBatch(state, caller, input);

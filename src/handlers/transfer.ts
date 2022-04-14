@@ -1,10 +1,10 @@
 import * as io from "io-ts";
 
-import { ERR_INTEGER, PST, UNIT } from "@/consts";
+import { CT, ERR_INTEGER, PST, UNIT } from "@/consts";
 import { State, Token, WriteResult } from "@/contractTypes";
-import { BigNumber, ContractAssert, _log } from "@/externals";
+import { BigNumber, ContractAssert, SmartWeave, _log } from "@/externals";
 import { isApprovedForAllHelper, isApprovedOrOwner } from "@/handlers/approval";
-import { checkInput } from "@/utils";
+import { checkInput, isPositiveInt } from "@/utils";
 import { balanceOf } from "@/handlers/readonlys";
 
 export const SingleTransferCodec = io.intersection([
@@ -156,7 +156,13 @@ export function addTokenTo(
     }
 }
 
-function removeTokenFrom(state: State, from: string, tokenId: string, qty: BigNumber, no?: number) {
+export function removeTokenFrom(
+    state: State,
+    from: string,
+    tokenId: string,
+    qty: BigNumber,
+    no?: number,
+) {
     const fromBalance = balanceOf(state, tokenId, from);
 
     ContractAssert(fromBalance.gt(0), "removeTokenFrom: Sender does not own the token");
@@ -166,6 +172,8 @@ function removeTokenFrom(state: State, from: string, tokenId: string, qty: BigNu
     if (qty.eq(0)) {
         return;
     }
+
+    ContractAssert(state.tokens[tokenId], "removeTokenFrom: `tokenId` does not exist");
 
     const token = state.tokens[tokenId];
     const newBalance = new BigNumber(token.balances[from]).minus(qty).toString();

@@ -6,7 +6,7 @@ import ContractTestingEnv from "?/ContractTestingEnv";
 import { State } from "@/contractTypes";
 import { Input } from "@/handlers";
 
-type Context = {
+export type Context = {
     arweave: Arweave;
     caller: string;
 
@@ -44,7 +44,10 @@ test.before((t) => {
             foreignContracts: [],
             allowFreeTransfer: false,
             paused: false,
+            lockMaxLength: 1000,
+            lockMinLength: 1,
         },
+        vaults: {},
         tokens: {
             PTY: {
                 ticker: "PTY",
