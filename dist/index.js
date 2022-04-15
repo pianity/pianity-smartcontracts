@@ -14,10 +14,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ForeignInvokeInputCodec = exports.TransferLockedInputCodec = exports.IncreaseVaultInputCodec = exports.UnlockInputCodec = exports.LockInputCodec = exports.TransactionBatchInputCodec = exports.SettingsInputCodec = exports.MintInputCodec = exports.TransferInputCodec = exports.TransferBatchInputCodec = exports.TransferRoyaltiesInputCodec = exports.SetApprovalForAllInputCodec = exports.IsApprovedForAllInputCodec = exports.RoyaltiesInputCodec = exports.OwnerInputCodec = exports.TickerInputCodec = exports.TotalBalanceInputCodec = exports.VaultBalanceInputCodec = exports.BalanceInputCodec = exports.InputCodec = exports.PST = exports.UNIT = void 0;
+exports.ForeignInvokeInputCodec = exports.TransferLockedInputCodec = exports.IncreaseVaultInputCodec = exports.UnlockInputCodec = exports.LockInputCodec = exports.TransactionBatchInputCodec = exports.SettingsInputCodec = exports.MintInputCodec = exports.TransferInputCodec = exports.TransferBatchInputCodec = exports.TransferRoyaltiesInputCodec = exports.SetApprovalForAllInputCodec = exports.IsApprovedForAllInputCodec = exports.RoyaltiesInputCodec = exports.OwnerInputCodec = exports.TickerInputCodec = exports.TotalBalanceInputCodec = exports.VaultBalanceInputCodec = exports.BalanceInputCodec = exports.InputCodec = exports.CT = exports.PST = exports.UNIT = void 0;
 var consts_1 = require("./consts");
 Object.defineProperty(exports, "UNIT", { enumerable: true, get: function () { return consts_1.UNIT; } });
 Object.defineProperty(exports, "PST", { enumerable: true, get: function () { return consts_1.PST; } });
+Object.defineProperty(exports, "CT", { enumerable: true, get: function () { return consts_1.CT; } });
 __exportStar(require("./contractTypes"), exports);
 var handlers_1 = require("./handlers");
 Object.defineProperty(exports, "InputCodec", { enumerable: true, get: function () { return handlers_1.InputCodec; } });

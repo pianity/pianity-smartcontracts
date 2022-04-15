@@ -1,3 +1,6 @@
+/**
+ * Profit Sharing Token
+ */
 export declare const PST = "PTY";
 /**
  * Community Token

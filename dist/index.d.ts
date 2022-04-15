@@ -1,4 +1,4 @@
-export { UNIT, PST } from "./consts";
+export { UNIT, PST, CT } from "./consts";
 export * from "./contractTypes";
 export { Input, InputCodec } from "./handlers";
 export { BalanceInputCodec, BalanceInput, VaultBalanceInputCodec, VaultBalanceInput, TotalBalanceInputCodec, TotalBalanceInput, TickerInputCodec, TickerInput, OwnerInputCodec, OwnerInput, RoyaltiesInputCodec, RoyaltiesInput, } from "./handlers/readonlys";

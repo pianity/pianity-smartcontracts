@@ -1,4 +1,4 @@
-export { UNIT, PST } from "@/consts";
+export { UNIT, PST, CT } from "@/consts";
 
 export * from "@/contractTypes";
 

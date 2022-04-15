@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ERR_INTEGER = exports.ERR_INVALID = exports.ERR_NOFROM = exports.ERR_NOROYALTIES = exports.ERR_NOTARGET = exports.ERR_NOQTY = exports.ERR_NOTOKENID = exports.ERR_404TOKENID = exports.UNIT = exports.CT = exports.PST = void 0;
+/**
+ * Profit Sharing Token
+ */
 exports.PST = "PTY";
 /**
  * Community Token
