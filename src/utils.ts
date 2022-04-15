@@ -1,9 +1,9 @@
 import { isLeft } from "fp-ts/lib/Either";
 import { Type } from "io-ts";
+import BigNumber from "bignumber.js";
 
 import { State } from "@/contractTypes";
 import { ContractError } from "@/externals";
-
 import PrettyReporter from "@/prettyReporter";
 
 /**
@@ -28,7 +28,7 @@ export function isPositiveInt(value: number): boolean {
 }
 
 export function isPositiveIntBn(value: BigNumber): boolean {
-    return Number.isInteger(value) && value > 0;
+    return value.isInteger() && value.gte(0);
 }
 export function hasOwnProperty(object: any, property: string) {
     return Object.prototype.hasOwnProperty.call(object, property);
