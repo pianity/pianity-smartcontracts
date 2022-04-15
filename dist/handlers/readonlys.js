@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.balanceOf = exports.owner = exports.OwnerInputCodec = exports.royalties = exports.RoyaltiesInputCodec = exports.balance = exports.BalanceInputCodec = exports.ticker = exports.TickerInputCodec = exports.name = exports.NameInputCodec = void 0;
+exports.balanceOf = exports.owner = exports.OwnerInputCodec = exports.royalties = exports.RoyaltiesInputCodec = exports.totalBalance = exports.TotalBalanceInputCodec = exports.vaultBalance = exports.VaultBalanceInputCodec = exports.balance = exports.BalanceInputCodec = exports.ticker = exports.TickerInputCodec = exports.name = exports.NameInputCodec = void 0;
 const io = __importStar(require("io-ts"));
 const consts_1 = require("../consts");
 const externals_1 = require("../externals");
@@ -57,13 +57,67 @@ exports.BalanceInputCodec = io.intersection([
         tokenId: io.string,
     }),
 ]);
+/**
+ * Returns the unlocked balance of `target` or caller
+ */
 function balance(state, caller, input) {
-    const { target, tokenId } = (0, utils_1.checkInput)(exports.BalanceInputCodec, input);
-    const effectiveTarget = target || caller;
-    const balance = balanceOf(state, tokenId || consts_1.PST, effectiveTarget);
-    return { result: { target: effectiveTarget, balance: balance.toString() } };
+    const { target = caller, tokenId = consts_1.PST } = (0, utils_1.checkInput)(exports.BalanceInputCodec, input);
+    const balance = balanceOf(state, tokenId || consts_1.PST, target);
+    return { result: { target, balance: balance.toString() } };
 }
 exports.balance = balance;
+exports.VaultBalanceInputCodec = io.intersection([
+    io.type({
+        function: io.literal("vaultBalance"),
+    }),
+    io.partial({
+        target: io.string,
+        tokenId: io.string,
+    }),
+]);
+function vaultBalance(state, caller, input) {
+    const { target = caller, tokenId = consts_1.PST } = (0, utils_1.checkInput)(exports.VaultBalanceInputCodec, input);
+    const vault = state.vaults[target];
+    let balance = new externals_1.BigNumber(0);
+    if (vault) {
+        const blockHeight = externals_1.SmartWeave.block.height;
+        for (const vaultItem of vault) {
+            if (vaultItem.tokenId === tokenId && blockHeight < vaultItem.end) {
+                balance = balance.plus(new externals_1.BigNumber(vaultItem.balance));
+            }
+        }
+    }
+    return { result: { target, balance: balance.toString() } };
+}
+exports.vaultBalance = vaultBalance;
+exports.TotalBalanceInputCodec = io.intersection([
+    io.type({
+        function: io.literal("totalBalance"),
+    }),
+    io.partial({
+        target: io.string,
+        tokenId: io.string,
+    }),
+]);
+/**
+ * Returns the unlocked + locked balance of `target` or caller
+ */
+function totalBalance(state, caller, input) {
+    const { target = caller, tokenId = consts_1.PST } = (0, utils_1.checkInput)(exports.TotalBalanceInputCodec, input);
+    const token = state.tokens[tokenId];
+    (0, externals_1.ContractAssert)(token, "totalBalanceOf: Token not found");
+    let balance = new externals_1.BigNumber(token.balances[target] || 0);
+    const vaults = state.vaults[target];
+    if (vaults) {
+        for (const vault of vaults) {
+            if (vault.tokenId === tokenId) {
+                balance = balance.plus(vault.balance);
+            }
+        }
+    }
+    return { result: { target, balance: balance.toString() } };
+}
+exports.totalBalance = totalBalance;
 exports.RoyaltiesInputCodec = io.type({
     function: io.literal("royalties"),
     target: io.string,

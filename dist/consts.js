@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ERR_INTEGER = exports.ERR_INVALID = exports.ERR_NOFROM = exports.ERR_NOROYALTIES = exports.ERR_NOTARGET = exports.ERR_NOQTY = exports.ERR_NOTOKENID = exports.ERR_404TOKENID = exports.UNIT = exports.PST = void 0;
+exports.ERR_INTEGER = exports.ERR_INVALID = exports.ERR_NOFROM = exports.ERR_NOROYALTIES = exports.ERR_NOTARGET = exports.ERR_NOQTY = exports.ERR_NOTOKENID = exports.ERR_404TOKENID = exports.UNIT = exports.CT = exports.PST = void 0;
 exports.PST = "PTY";
+/**
+ * Community Token
+ */
+exports.CT = "PIA";
 exports.UNIT = 1000000;
 exports.ERR_404TOKENID = "No token found: Invalid tokenId";
 exports.ERR_NOTOKENID = "No tokenId specified";

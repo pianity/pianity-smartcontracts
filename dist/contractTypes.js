@@ -39,6 +39,8 @@ exports.SettingsKnownProps = {
     contractSuperOwners: io.array(io.string),
     settingsOwnersPermissions: io.array(io.string),
     foreignContracts: io.array(io.string),
+    lockMinLength: io.number,
+    lockMaxLength: io.number,
 };
 exports.SettingsCodec = io.intersection([
     io.type(exports.SettingsKnownProps),

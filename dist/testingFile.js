@@ -1,26 +1,47 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const UNIT = 1e6;
-function shareRoyaltiesRandomly(shareholders) {
-    const royalties = {};
-    let shared = 0;
-    for (let i = 0; i < shareholders; i++) {
-        let share;
-        if (i < shareholders - 1) {
-            share = (UNIT - shared) * Math.random();
-        }
-        else {
-            share = UNIT - shared;
-        }
-        share = Math.floor(share);
-        shared += share;
-        royalties[`shareholder-${i}`] = share;
+const a = ["A", "B", "C", "D"];
+for (let i = a.length - 1; i >= 0; i--) {
+    const letter = a[i];
+    console.log(i, letter);
+    if (letter === "B" || letter === "C") {
+        a.splice(i, 1);
     }
-    return royalties;
 }
-function computeSum(array) {
-    return array.reduce((a, b) => a + b, 0);
-}
+// for (const [i, letter] of a.reverse().entries()) {
+//     console.log(i, letter);
+//
+//     if (letter === "B" || letter === "C") {
+//         a.splice(i, 1);
+//     }
+// }
+console.log(a);
+// const UNIT = 1e6;
+//
+// function shareRoyaltiesRandomly(shareholders: number) {
+//     const royalties: Record<string, number> = {};
+//
+//     let shared = 0;
+//     for (let i = 0; i < shareholders; i++) {
+//         let share;
+//
+//         if (i < shareholders - 1) {
+//             share = (UNIT - shared) * Math.random();
+//         } else {
+//             share = UNIT - shared;
+//         }
+//
+//         share = Math.floor(share);
+//         shared += share;
+//         royalties[`shareholder-${i}`] = share;
+//     }
+//
+//     return royalties;
+// }
+//
+// function computeSum(array: number[]) {
+//     return array.reduce((a, b) => a + b, 0);
+// }
 // function checkSum(royalties: number[]) {
 //     const sum = sum(royalties);
 //
@@ -50,33 +71,40 @@ function computeSum(array) {
 //         throw new Error(`Royalties are not valid: ${sumDiff}`);
 //     }
 // }
-function diluteRoyalties(royalties, dilution) {
-    for (const [key, value] of Object.entries(royalties)) {
-        royalties[key] = Math.round(value * dilution);
-    }
-}
-function addPianityRoyalties(royalties) {
-    royalties.pianity = UNIT * 0.1;
-    royalties.treasury = UNIT * 0.1;
-    const sumDiff = UNIT - computeSum(Object.values(royalties));
-    if (Math.abs(sumDiff) < 10) {
-        royalties.treasury += sumDiff;
-    }
-    else {
-        throw new Error(`Royalties are not valid: ${sumDiff}`);
-    }
-}
-for (let i = 0; i < 1; i++) {
-    const royalties = shareRoyaltiesRandomly(10);
-    console.log(royalties);
-    diluteRoyalties(royalties, 0.8);
-    addPianityRoyalties(royalties);
-    console.log(royalties);
-    const sum = computeSum(Object.values(royalties));
-    if (sum !== UNIT) {
-        throw new Error(`Royalties are not valid: ${sum}`);
-    }
-}
+// function diluteRoyalties(royalties: Record<string, number>, dilution: number) {
+//     for (const [key, value] of Object.entries(royalties)) {
+//         royalties[key] = Math.round(value * dilution);
+//     }
+// }
+//
+// function addPianityRoyalties(royalties: Record<string, number>) {
+//     royalties.pianity = UNIT * 0.1;
+//     royalties.treasury = UNIT * 0.1;
+//
+//     const sumDiff = UNIT - computeSum(Object.values(royalties));
+//
+//     if (Math.abs(sumDiff) < 10) {
+//         royalties.treasury += sumDiff;
+//     } else {
+//         throw new Error(`Royalties are not valid: ${sumDiff}`);
+//     }
+// }
+//
+// for (let i = 0; i < 1; i++) {
+//     const royalties = shareRoyaltiesRandomly(10);
+//     console.log(royalties);
+//
+//     diluteRoyalties(royalties, 0.8);
+//     addPianityRoyalties(royalties);
+//
+//     console.log(royalties);
+//
+//     const sum = computeSum(Object.values(royalties));
+//
+//     if (sum !== UNIT) {
+//         throw new Error(`Royalties are not valid: ${sum}`);
+//     }
+// }
 // const royalties = shareRoyaltiesRandomly(5);
 // console.log("royalties sum:", computeSum(royalties));
 // const diluted = diluteRoyalties(royalties, 0.8);

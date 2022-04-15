@@ -22,6 +22,8 @@ export declare const SettingsKnownProps: {
     contractSuperOwners: io.ArrayC<io.StringC>;
     settingsOwnersPermissions: io.ArrayC<io.StringC>;
     foreignContracts: io.ArrayC<io.StringC>;
+    lockMinLength: io.NumberC;
+    lockMaxLength: io.NumberC;
 };
 export declare const SettingsCodec: io.IntersectionC<[io.TypeC<{
     allowFreeTransfer: io.BooleanC;
@@ -31,12 +33,21 @@ export declare const SettingsCodec: io.IntersectionC<[io.TypeC<{
     contractSuperOwners: io.ArrayC<io.StringC>;
     settingsOwnersPermissions: io.ArrayC<io.StringC>;
     foreignContracts: io.ArrayC<io.StringC>;
+    lockMinLength: io.NumberC;
+    lockMaxLength: io.NumberC;
 }>, io.RecordC<io.StringC, io.UnknownC>]>;
 export declare type Settings = io.TypeOf<typeof SettingsCodec>;
+export declare type Vault = {
+    tokenId: string;
+    balance: string;
+    start: number;
+    end: number;
+};
 export declare type State = {
     name: string;
     nonce: number;
     settings: Settings;
+    vaults: Record<string, Vault[]>;
     tokens: Record<string, Token>;
     operatorApprovals: Record<string, Record<string, boolean>>;
     invocations: string[];

@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkRoyalties = exports.addTokenTo = exports.transferRoyalties = exports.TransferRoyaltiesInputCodec = exports.transferBatch = exports.TransferBatchInputCodec = exports.transfer = exports.TransferInputCodec = exports.SingleTransferCodec = void 0;
+exports.checkRoyalties = exports.removeTokenFrom = exports.addTokenTo = exports.transferRoyalties = exports.TransferRoyaltiesInputCodec = exports.transferBatch = exports.TransferBatchInputCodec = exports.transfer = exports.TransferInputCodec = exports.SingleTransferCodec = void 0;
 const io = __importStar(require("io-ts"));
 const consts_1 = require("../consts");
 const externals_1 = require("../externals");
@@ -125,6 +125,7 @@ function removeTokenFrom(state, from, tokenId, qty, no) {
     if (qty.eq(0)) {
         return;
     }
+    (0, externals_1.ContractAssert)(state.tokens[tokenId], "removeTokenFrom: `tokenId` does not exist");
     const token = state.tokens[tokenId];
     const newBalance = new externals_1.BigNumber(token.balances[from]).minus(qty).toString();
     if (token.owners) {
@@ -142,6 +143,7 @@ function removeTokenFrom(state, from, tokenId, qty, no) {
         token.balances[from] = newBalance;
     }
 }
+exports.removeTokenFrom = removeTokenFrom;
 function pay(state, token, from, price) {
     (0, externals_1.ContractAssert)(token.royalties && token.royaltyRate, "pay: Token doesn't have any fees");
     (0, externals_1.ContractAssert)(price.isInteger(), `pay: ${consts_1.ERR_INTEGER}`);

@@ -34,6 +34,7 @@ const transfer_1 = require("../handlers/transfer");
 const mint_1 = require("../handlers/mint");
 const settings_1 = require("../handlers/settings");
 const foreignInvoke_1 = require("../handlers/foreignInvoke");
+const vault_1 = require("../handlers/vault");
 __exportStar(require("../handlers/readonlys"), exports);
 __exportStar(require("../handlers/approval"), exports);
 __exportStar(require("../handlers/transfer"), exports);
@@ -41,6 +42,7 @@ __exportStar(require("../handlers/mint"), exports);
 __exportStar(require("../handlers/settings"), exports);
 __exportStar(require("../handlers/foreignInvoke"), exports);
 __exportStar(require("../handlers/transactionBatch"), exports);
+__exportStar(require("../handlers/vault"), exports);
 /**
  * The codec for every Input except TransactionBatchInput. This is done because it is forbidden to
  * nest TransactionBatch calls.
@@ -49,6 +51,8 @@ exports.InputWOTxBatchCodec = io.union([
     readonlys_1.NameInputCodec,
     readonlys_1.TickerInputCodec,
     readonlys_1.BalanceInputCodec,
+    readonlys_1.VaultBalanceInputCodec,
+    readonlys_1.TotalBalanceInputCodec,
     readonlys_1.RoyaltiesInputCodec,
     readonlys_1.OwnerInputCodec,
     approval_1.IsApprovedForAllInputCodec,
@@ -60,6 +64,10 @@ exports.InputWOTxBatchCodec = io.union([
     mint_1.MintBatchInputCodec,
     mint_1.BurnInputCodec,
     settings_1.SettingsInputCodec,
+    vault_1.LockInputCodec,
+    vault_1.UnlockInputCodec,
+    vault_1.IncreaseVaultInputCodec,
+    vault_1.TransferLockedInputCodec,
     foreignInvoke_1.ForeignInvokeInputCodec,
 ]);
 // NOTE: `TransactionBatchInputCodec` is defined here instead of in `transactionBatch.ts` because

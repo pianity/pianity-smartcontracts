@@ -19,6 +19,10 @@ export declare type TickerResult = {
     ticker: string;
 };
 export declare function ticker(state: State, caller: string, input: TickerInput): ReadResult<TickerResult>;
+export declare type BalanceResult = {
+    target: string;
+    balance: string;
+};
 export declare const BalanceInputCodec: io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"balance">;
 }>, io.PartialC<{
@@ -26,11 +30,29 @@ export declare const BalanceInputCodec: io.IntersectionC<[io.TypeC<{
     tokenId: io.StringC;
 }>]>;
 export declare type BalanceInput = io.TypeOf<typeof BalanceInputCodec>;
-export declare type BalanceResult = {
-    target: string;
-    balance: string;
-};
+/**
+ * Returns the unlocked balance of `target` or caller
+ */
 export declare function balance(state: State, caller: string, input: BalanceInput): ReadResult<BalanceResult>;
+export declare const VaultBalanceInputCodec: io.IntersectionC<[io.TypeC<{
+    function: io.LiteralC<"vaultBalance">;
+}>, io.PartialC<{
+    target: io.StringC;
+    tokenId: io.StringC;
+}>]>;
+export declare type VaultBalanceInput = io.TypeOf<typeof VaultBalanceInputCodec>;
+export declare function vaultBalance(state: State, caller: string, input: VaultBalanceInput): ReadResult<BalanceResult>;
+export declare const TotalBalanceInputCodec: io.IntersectionC<[io.TypeC<{
+    function: io.LiteralC<"totalBalance">;
+}>, io.PartialC<{
+    target: io.StringC;
+    tokenId: io.StringC;
+}>]>;
+export declare type TotalBalanceInput = io.TypeOf<typeof TotalBalanceInputCodec>;
+/**
+ * Returns the unlocked + locked balance of `target` or caller
+ */
+export declare function totalBalance(state: State, caller: string, input: TotalBalanceInput): ReadResult<BalanceResult>;
 export declare const RoyaltiesInputCodec: io.TypeC<{
     function: io.LiteralC<"royalties">;
     target: io.StringC;

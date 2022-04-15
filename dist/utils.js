@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wrapHandler = exports.exhaustive = exports.wrapErrorAsync = exports.sleep = exports.hasOwnProperty = exports.checkInput = void 0;
+exports.exhaustive = exports.hasOwnProperty = exports.isPositiveIntBn = exports.isPositiveInt = exports.checkInput = void 0;
 const Either_1 = require("fp-ts/lib/Either");
 const externals_1 = require("./externals");
 const prettyReporter_1 = __importDefault(require("./prettyReporter"));
@@ -20,33 +20,19 @@ function checkInput(codec, input) {
     return input;
 }
 exports.checkInput = checkInput;
+function isPositiveInt(value) {
+    return Number.isInteger(value) && value > 0;
+}
+exports.isPositiveInt = isPositiveInt;
+function isPositiveIntBn(value) {
+    return value.isInteger() && value.gte(0);
+}
+exports.isPositiveIntBn = isPositiveIntBn;
 function hasOwnProperty(object, property) {
     return Object.prototype.hasOwnProperty.call(object, property);
 }
 exports.hasOwnProperty = hasOwnProperty;
-function sleep(seconds) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, seconds * 1000);
-    });
-}
-exports.sleep = sleep;
-function wrapErrorAsync(action, args, error) {
-    try {
-        return action(...args);
-    }
-    catch {
-        throw error;
-    }
-}
-exports.wrapErrorAsync = wrapErrorAsync;
 function exhaustive(_) {
     throw new Error("Check wasn't exhaustive");
 }
 exports.exhaustive = exhaustive;
-function wrapHandler(handler) {
-    const wrappedHandler = function wrappedHandler(state, caller, input) {
-        handler(state, caller, { ...input, function: handler.name });
-    };
-    return [handler, wrappedHandler];
-}
-exports.wrapHandler = wrapHandler;

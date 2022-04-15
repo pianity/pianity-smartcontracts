@@ -46,4 +46,5 @@ export declare const TransferRoyaltiesInputCodec: io.TypeC<{
 export declare type TransferRoyaltiesInput = io.TypeOf<typeof TransferRoyaltiesInputCodec>;
 export declare function transferRoyalties(state: State, caller: string, input: TransferRoyaltiesInput): WriteResult;
 export declare function addTokenTo(state: State, target: string, tokenId: string, qty: BigNumber, no?: number): void;
+export declare function removeTokenFrom(state: State, from: string, tokenId: string, qty: BigNumber, no?: number): void;
 export declare function checkRoyalties(royalties: Record<string, number>): void;

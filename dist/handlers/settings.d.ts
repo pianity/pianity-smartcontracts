@@ -10,6 +10,8 @@ export declare const SettingsInputCodec: io.TypeC<{
         contractSuperOwners: io.ArrayC<io.StringC>;
         settingsOwnersPermissions: io.ArrayC<io.StringC>;
         foreignContracts: io.ArrayC<io.StringC>;
+        lockMinLength: io.NumberC;
+        lockMaxLength: io.NumberC;
     }>, io.RecordC<io.StringC, io.UnknownC>]>;
 }>;
 export declare type SettingsInput = io.TypeOf<typeof SettingsInputCodec>;

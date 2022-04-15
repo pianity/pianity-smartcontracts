@@ -8,6 +8,7 @@ export * from "../handlers/mint";
 export * from "../handlers/settings";
 export * from "../handlers/foreignInvoke";
 export * from "../handlers/transactionBatch";
+export * from "../handlers/vault";
 /**
  * The codec for every Input except TransactionBatchInput. This is done because it is forbidden to
  * nest TransactionBatch calls.
@@ -20,6 +21,16 @@ export declare const InputWOTxBatchCodec: io.UnionC<[io.TypeC<{
     tokenId: io.StringC;
 }>]>, io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"balance">;
+}>, io.PartialC<{
+    target: io.StringC;
+    tokenId: io.StringC;
+}>]>, io.IntersectionC<[io.TypeC<{
+    function: io.LiteralC<"vaultBalance">;
+}>, io.PartialC<{
+    target: io.StringC;
+    tokenId: io.StringC;
+}>]>, io.IntersectionC<[io.TypeC<{
+    function: io.LiteralC<"totalBalance">;
 }>, io.PartialC<{
     target: io.StringC;
     tokenId: io.StringC;
@@ -96,7 +107,26 @@ export declare const InputWOTxBatchCodec: io.UnionC<[io.TypeC<{
         contractSuperOwners: io.ArrayC<io.StringC>;
         settingsOwnersPermissions: io.ArrayC<io.StringC>;
         foreignContracts: io.ArrayC<io.StringC>;
+        lockMinLength: io.NumberC;
+        lockMaxLength: io.NumberC;
     }>, io.RecordC<io.StringC, io.UnknownC>]>;
+}>, io.TypeC<{
+    function: io.LiteralC<"lock">;
+    tokenId: io.StringC;
+    qty: io.StringC;
+    lockLength: io.NumberC;
+}>, io.TypeC<{
+    function: io.LiteralC<"unlock">;
+}>, io.TypeC<{
+    function: io.LiteralC<"increaseVault">;
+    id: io.NumberC;
+    lockLength: io.NumberC;
+}>, io.TypeC<{
+    function: io.LiteralC<"transferLocked">;
+    target: io.StringC;
+    tokenId: io.StringC;
+    qty: io.StringC;
+    lockLength: io.NumberC;
 }>, io.TypeC<{
     function: io.LiteralC<"foreignInvoke">;
     target: io.StringC;
@@ -116,6 +146,16 @@ export declare const TransactionBatchInputCodec: io.TypeC<{
     }>, io.PartialC<{
         target: io.StringC;
         tokenId: io.StringC;
+    }>]>, io.IntersectionC<[io.TypeC<{
+        function: io.LiteralC<"vaultBalance">;
+    }>, io.PartialC<{
+        target: io.StringC;
+        tokenId: io.StringC;
+    }>]>, io.IntersectionC<[io.TypeC<{
+        function: io.LiteralC<"totalBalance">;
+    }>, io.PartialC<{
+        target: io.StringC;
+        tokenId: io.StringC;
     }>]>, io.TypeC<{
         function: io.LiteralC<"royalties">;
         target: io.StringC;
@@ -189,7 +229,26 @@ export declare const TransactionBatchInputCodec: io.TypeC<{
             contractSuperOwners: io.ArrayC<io.StringC>;
             settingsOwnersPermissions: io.ArrayC<io.StringC>;
             foreignContracts: io.ArrayC<io.StringC>;
+            lockMinLength: io.NumberC;
+            lockMaxLength: io.NumberC;
         }>, io.RecordC<io.StringC, io.UnknownC>]>;
+    }>, io.TypeC<{
+        function: io.LiteralC<"lock">;
+        tokenId: io.StringC;
+        qty: io.StringC;
+        lockLength: io.NumberC;
+    }>, io.TypeC<{
+        function: io.LiteralC<"unlock">;
+    }>, io.TypeC<{
+        function: io.LiteralC<"increaseVault">;
+        id: io.NumberC;
+        lockLength: io.NumberC;
+    }>, io.TypeC<{
+        function: io.LiteralC<"transferLocked">;
+        target: io.StringC;
+        tokenId: io.StringC;
+        qty: io.StringC;
+        lockLength: io.NumberC;
     }>, io.TypeC<{
         function: io.LiteralC<"foreignInvoke">;
         target: io.StringC;
@@ -204,6 +263,16 @@ export declare const InputCodec: io.UnionC<[io.UnionC<[io.TypeC<{
     tokenId: io.StringC;
 }>]>, io.IntersectionC<[io.TypeC<{
     function: io.LiteralC<"balance">;
+}>, io.PartialC<{
+    target: io.StringC;
+    tokenId: io.StringC;
+}>]>, io.IntersectionC<[io.TypeC<{
+    function: io.LiteralC<"vaultBalance">;
+}>, io.PartialC<{
+    target: io.StringC;
+    tokenId: io.StringC;
+}>]>, io.IntersectionC<[io.TypeC<{
+    function: io.LiteralC<"totalBalance">;
 }>, io.PartialC<{
     target: io.StringC;
     tokenId: io.StringC;
@@ -280,7 +349,26 @@ export declare const InputCodec: io.UnionC<[io.UnionC<[io.TypeC<{
         contractSuperOwners: io.ArrayC<io.StringC>;
         settingsOwnersPermissions: io.ArrayC<io.StringC>;
         foreignContracts: io.ArrayC<io.StringC>;
+        lockMinLength: io.NumberC;
+        lockMaxLength: io.NumberC;
     }>, io.RecordC<io.StringC, io.UnknownC>]>;
+}>, io.TypeC<{
+    function: io.LiteralC<"lock">;
+    tokenId: io.StringC;
+    qty: io.StringC;
+    lockLength: io.NumberC;
+}>, io.TypeC<{
+    function: io.LiteralC<"unlock">;
+}>, io.TypeC<{
+    function: io.LiteralC<"increaseVault">;
+    id: io.NumberC;
+    lockLength: io.NumberC;
+}>, io.TypeC<{
+    function: io.LiteralC<"transferLocked">;
+    target: io.StringC;
+    tokenId: io.StringC;
+    qty: io.StringC;
+    lockLength: io.NumberC;
 }>, io.TypeC<{
     function: io.LiteralC<"foreignInvoke">;
     target: io.StringC;
@@ -295,6 +383,16 @@ export declare const InputCodec: io.UnionC<[io.UnionC<[io.TypeC<{
         tokenId: io.StringC;
     }>]>, io.IntersectionC<[io.TypeC<{
         function: io.LiteralC<"balance">;
+    }>, io.PartialC<{
+        target: io.StringC;
+        tokenId: io.StringC;
+    }>]>, io.IntersectionC<[io.TypeC<{
+        function: io.LiteralC<"vaultBalance">;
+    }>, io.PartialC<{
+        target: io.StringC;
+        tokenId: io.StringC;
+    }>]>, io.IntersectionC<[io.TypeC<{
+        function: io.LiteralC<"totalBalance">;
     }>, io.PartialC<{
         target: io.StringC;
         tokenId: io.StringC;
@@ -371,7 +469,26 @@ export declare const InputCodec: io.UnionC<[io.UnionC<[io.TypeC<{
             contractSuperOwners: io.ArrayC<io.StringC>;
             settingsOwnersPermissions: io.ArrayC<io.StringC>;
             foreignContracts: io.ArrayC<io.StringC>;
+            lockMinLength: io.NumberC;
+            lockMaxLength: io.NumberC;
         }>, io.RecordC<io.StringC, io.UnknownC>]>;
+    }>, io.TypeC<{
+        function: io.LiteralC<"lock">;
+        tokenId: io.StringC;
+        qty: io.StringC;
+        lockLength: io.NumberC;
+    }>, io.TypeC<{
+        function: io.LiteralC<"unlock">;
+    }>, io.TypeC<{
+        function: io.LiteralC<"increaseVault">;
+        id: io.NumberC;
+        lockLength: io.NumberC;
+    }>, io.TypeC<{
+        function: io.LiteralC<"transferLocked">;
+        target: io.StringC;
+        tokenId: io.StringC;
+        qty: io.StringC;
+        lockLength: io.NumberC;
     }>, io.TypeC<{
         function: io.LiteralC<"foreignInvoke">;
         target: io.StringC;
