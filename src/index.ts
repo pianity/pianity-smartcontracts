@@ -7,6 +7,10 @@ export { Input, InputCodec } from "@/handlers";
 export {
     BalanceInputCodec,
     BalanceInput,
+    VaultBalanceInputCodec,
+    VaultBalanceInput,
+    TotalBalanceInputCodec,
+    TotalBalanceInput,
     TickerInputCodec,
     TickerInput,
     OwnerInputCodec,
@@ -37,5 +41,16 @@ export { SettingsInput, SettingsInputCodec } from "@/handlers/settings";
 
 export { TransactionBatchInputCodec } from "@/handlers";
 export { TransactionBatchInput } from "@/handlers/transactionBatch";
+
+export {
+    LockInputCodec,
+    LockInput,
+    UnlockInputCodec,
+    UnlockInput,
+    IncreaseVaultInputCodec,
+    IncreaseVaultInput,
+    TransferLockedInputCodec,
+    TransferLockedInput,
+} from "@/handlers/vault";
 
 export { ForeignInvokeInput, ForeignInvokeInputCodec } from "@/handlers/foreignInvoke";
