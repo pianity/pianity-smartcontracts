@@ -1,4 +1,4 @@
-import { SmartWeaveGlobal } from "redstone-smartweave";
+import { SmartWeaveGlobal } from "warp-contracts";
 import BigNumberLib from "bignumber.js";
 export declare const SmartWeave: SmartWeaveGlobal;
 export declare const ContractError: ErrorConstructor;

@@ -1,7 +1,5 @@
 import { build, Plugin } from "esbuild";
 import { readFile, writeFile } from "node:fs/promises";
-import { normalizeContractSource as normalizeContractSourceRedstone } from "redstone-smartweave";
-import { normalizeContractSource as normalizeContractSourceV1 } from "smartweave/lib/utils";
 
 const removeExternalsImports: Plugin = {
     name: "remove-externals-imports",
