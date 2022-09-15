@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 
-import Arweave from "arweave";
+import Arweave from "arweave-testing";
 import { createContractExecutionEnvironment } from "smartweave/lib/contract-load";
 import { ContractHandler, execute } from "smartweave/lib/contract-step";
 import { SmartWeaveGlobal } from "smartweave/lib/smartweave-global";

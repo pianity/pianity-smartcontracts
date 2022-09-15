@@ -1,0 +1,77 @@
+diff --git a/node_modules/smartweave/lib/contract-load.d.ts b/node_modules/smartweave/lib/contract-load.d.ts
+index d784864..66c3a9f 100644
+--- a/node_modules/smartweave/lib/contract-load.d.ts
++++ b/node_modules/smartweave/lib/contract-load.d.ts
+@@ -30,7 +30,7 @@ export declare function loadContract(arweave: Arweave, contractID: string, contr
+  *
+  * @param contractSrc the javascript source for the contract. Must declare a handle() function
+  */
+-export declare function createContractExecutionEnvironment(arweave: Arweave, contractSrc: string, contractId: string, contractOwner: string): {
++export declare function createContractExecutionEnvironment(arweave: Arweave, contractSrc: string, contractId: string, contractOwner: string, _log: (...values: any[]) => void): {
+     handler: ContractHandler;
+     swGlobal: SmartWeaveGlobal;
+ };
+diff --git a/node_modules/smartweave/lib/contract-load.js b/node_modules/smartweave/lib/contract-load.js
+index 0195930..8c6d710 100644
+--- a/node_modules/smartweave/lib/contract-load.js
++++ b/node_modules/smartweave/lib/contract-load.js
+@@ -89,12 +89,12 @@ exports.loadContract = loadContract;
+  *
+  * @param contractSrc the javascript source for the contract. Must declare a handle() function
+  */
+-function createContractExecutionEnvironment(arweave, contractSrc, contractId, contractOwner) {
++function createContractExecutionEnvironment(arweave, contractSrc, contractId, contractOwner, _log) {
+     const returningSrc = utils_1.normalizeContractSource(contractSrc);
+     const swGlobal = new smartweave_global_1.SmartWeaveGlobal(arweave, { id: contractId, owner: contractOwner });
+     const getContractFunction = new Function(returningSrc); // eslint-disable-line
+     return {
+-        handler: getContractFunction(swGlobal, bignumber_js_1.default, clarity),
++        handler: getContractFunction(swGlobal, bignumber_js_1.default, clarity, _log),
+         swGlobal,
+     };
+ }
+diff --git a/node_modules/smartweave/lib/utils.js b/node_modules/smartweave/lib/utils.js
+index 539eb16..b04c652 100644
+--- a/node_modules/smartweave/lib/utils.js
++++ b/node_modules/smartweave/lib/utils.js
+@@ -80,14 +80,33 @@ function normalizeContractSource(contractSrc) {
+     // the ContractError exception.
+     // We then use `new Function()` which we can call and get back the returned handle function
+     // which has access to the per-instance globals.
+-    contractSrc = contractSrc
+-        .replace(/export\s+async\s+function\s+handle/gmu, 'async function handle')
+-        .replace(/export\s+function\s+handle/gmu, 'function handle')
+-        .replace(/\(\s*\(\)\s*=>\s*{/g, '')
+-        .replace(/\s*\(\s*function\s*\(\)\s*{/g, '')
+-        .replace(/}\s*\)\s*\(\)\s*;/g, '');
++    const srcSplit = contractSrc.split("\n");
++    const firstLine = srcSplit.findIndex((value) => value.trim().length !== 0);
++    const lastLine = (() => {
++        let index = srcSplit.length - 1;
++        for (index; index > 0; index--) {
++            if (srcSplit[index].trim().length !== 0) {
++                return index;
++            }
++        }
++        return -1;
++    })();
++    if (firstLine > -1 && lastLine > -1) {
++        if (
++            (/\(\s*\(\)\s*=>\s*{/g.test(srcSplit[firstLine]) ||
++                /\s*\(\s*function\s*\(\)\s*{/g.test(srcSplit[firstLine])) &&
++            /}\s*\)\s*\(\)\s*;/g.test(srcSplit[lastLine])
++        ) {
++            srcSplit.splice(firstLine, 1);
++            srcSplit.splice(lastLine - 1, 1);
++        }
++    }
++    contractSrc = srcSplit
++        .join("\n")
++        .replace(/export\s+async\s+function\s+handle/gmu, "async function handle")
++        .replace(/export\s+function\s+handle/gmu, "function handle");
+     return `
+-    const [SmartWeave, BigNumber, clarity] = arguments;
++    const [SmartWeave, BigNumber, clarity, _log] = arguments;
+     clarity.SmartWeave = SmartWeave;
+     class ContractError extends Error { constructor(message) { super(message); this.name = \'ContractError\' } };
+     function ContractAssert(cond, message) { if (!cond) throw new ContractError(message) };
